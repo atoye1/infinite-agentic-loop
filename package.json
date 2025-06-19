@@ -9,27 +9,27 @@
     "@remotion/cli": "4.0.317",
     "@remotion/bundler": "4.0.317",
     "@remotion/renderer": "4.0.317",
-    "@remotion/zod-types": "4.0.317",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "4.0.317",
-    "zod": "3.22.3",
     "@remotion/tailwind-v4": "4.0.317",
     "tailwindcss": "4.0.0",
-    "commander": "^11.1.0",
-    "chalk": "^5.3.0",
-    "ora": "^8.0.1",
-    "csv-parser": "^3.0.0"
+    "commander": "^11.1.0"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "4.0.317",
     "@types/react": "19.0.0",
     "@types/web": "0.0.166",
     "@types/node": "^22.0.0",
+    "@types/jest": "^29.5.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
     "eslint": "9.19.0",
     "prettier": "3.3.3",
     "typescript": "5.8.2",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0"
   },
   "bin": {
     "barchart-race": "./bin/barchart-race.js"
@@ -39,14 +39,14 @@
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
-    "cli": "tsx src/cli/index.ts",
-    "cli-render": "tsx src/cli/index.ts render",
-    "cli-validate": "tsx src/cli/index.ts validate",
-    "cli-init": "tsx src/cli/index.ts init",
-    "old-cli": "tsx src/cli.ts",
-    "render": "tsx src/cli.ts render",
-    "list": "tsx src/cli.ts list",
-    "test": "tsx src/integration-test.ts",
+    "render": "npx tsx src/unified-cli.ts render",
+    "validate": "npx tsx src/unified-cli.ts validate",
+    "cli": "npx tsx src/unified-cli.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "tsx src/integration-test.ts",
+    "test:all": "tsx src/tests/runTests.ts",
     "example": "tsx src/examples/usage-examples.ts"
   },
   "sideEffects": [

@@ -32,30 +32,98 @@ export interface RawDataRow {
   [key: string]: string | number;
 }
 
+export class DataProcessingError extends Error {
+  constructor(
+    message: string,
+    public readonly code: string,
+    public readonly context?: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = 'DataProcessingError';
+  }
+}
+
 export class DataProcessor {
   private config: ProcessingConfig;
   private rawData: RawDataRow[] = [];
   private processedData: DataPoint[] = [];
   private frameData: FrameData[] = [];
+  private isInitialized = false;
+  private processingStats = {
+    totalRows: 0,
+    validRows: 0,
+    skippedRows: 0,
+    errors: [] as string[]
+  };
 
   constructor(config: ProcessingConfig) {
+    // Validate config on construction
+    const configErrors = DataProcessor.validateConfig(config);
+    if (configErrors.length > 0) {
+      throw new DataProcessingError(
+        `Invalid configuration: ${configErrors.join(', ')}`,
+        'INVALID_CONFIG',
+        { errors: configErrors }
+      );
+    }
+
     this.config = {
       fps: 30,
       topN: 10,
       ...config
     };
+    this.isInitialized = true;
   }
 
   /**
    * Parse CSV data with robust error handling
    */
   public parseCSV(csvContent: string): void {
+    if (!this.isInitialized) {
+      throw new DataProcessingError(
+        'DataProcessor not properly initialized',
+        'NOT_INITIALIZED'
+      );
+    }
+
+    // Reset processing stats
+    this.processingStats = {
+      totalRows: 0,
+      validRows: 0,
+      skippedRows: 0,
+      errors: []
+    };
+
     try {
-      const lines = csvContent.trim().split('\n');
-      if (lines.length < 2) {
-        throw new Error('CSV must contain at least header and one data row');
+      // Validate input
+      if (!csvContent || typeof csvContent !== 'string') {
+        throw new DataProcessingError(
+          'CSV content must be a non-empty string',
+          'INVALID_INPUT',
+          { type: typeof csvContent, length: csvContent?.length }
+        );
       }
 
+      const trimmedContent = csvContent.trim();
+      if (trimmedContent.length === 0) {
+        throw new DataProcessingError(
+          'CSV content is empty after trimming',
+          'EMPTY_CSV'
+        );
+      }
+
+      const lines = trimmedContent.split('\n');
+      this.processingStats.totalRows = lines.length - 1; // Excluding header
+
+      if (lines.length < 2) {
+        throw new DataProcessingError(
+          'CSV must contain at least header and one data row',
+          'INSUFFICIENT_DATA',
+          { lineCount: lines.length }
+        );
+      }
+
+      // Parse and validate headers
       const headers = this.parseCSVLine(lines[0]);
       this.validateHeaders(headers);
 
@@ -63,33 +131,85 @@ export class DataProcessor {
       
       for (let i = 1; i < lines.length; i++) {
         try {
-          const values = this.parseCSVLine(lines[i]);
+          const lineContent = lines[i].trim();
+          
+          // Skip empty lines
+          if (lineContent.length === 0) {
+            this.processingStats.skippedRows++;
+            continue;
+          }
+
+          const values = this.parseCSVLine(lineContent);
+          
           if (values.length !== headers.length) {
-            console.warn(`Row ${i + 1}: Column count mismatch, skipping`);
+            const error = `Row ${i + 1}: Expected ${headers.length} columns, got ${values.length}`;
+            this.processingStats.errors.push(error);
+            this.processingStats.skippedRows++;
+            console.warn(error);
             continue;
           }
 
           const row: RawDataRow = {};
+          let hasValidData = false;
+
           headers.forEach((header, index) => {
             const value = values[index];
-            // Try to parse as number, fallback to string
-            const numValue = parseFloat(value);
-            row[header] = isNaN(numValue) ? value : numValue;
+            if (value !== undefined && value !== null && value.trim() !== '') {
+              // Try to parse as number, fallback to string
+              const numValue = parseFloat(value);
+              row[header] = isNaN(numValue) ? value.trim() : numValue;
+              hasValidData = true;
+            } else {
+              row[header] = '';
+            }
           });
 
-          this.rawData.push(row);
+          // Only add rows that have at least some valid data
+          if (hasValidData) {
+            this.rawData.push(row);
+            this.processingStats.validRows++;
+          } else {
+            this.processingStats.skippedRows++;
+            this.processingStats.errors.push(`Row ${i + 1}: All columns are empty`);
+          }
+
         } catch (error) {
-          console.warn(`Row ${i + 1}: Parse error, skipping - ${error}`);
+          const errorMsg = `Row ${i + 1}: Parse error - ${error instanceof Error ? error.message : 'Unknown error'}`;
+          this.processingStats.errors.push(errorMsg);
+          this.processingStats.skippedRows++;
+          console.warn(errorMsg);
         }
       }
 
       if (this.rawData.length === 0) {
-        throw new Error('No valid data rows found in CSV');
+        throw new DataProcessingError(
+          'No valid data rows found in CSV',
+          'NO_VALID_DATA',
+          {
+            totalRows: this.processingStats.totalRows,
+            skippedRows: this.processingStats.skippedRows,
+            errors: this.processingStats.errors.slice(0, 10) // First 10 errors
+          }
+        );
       }
 
-      console.log(`Successfully parsed ${this.rawData.length} rows`);
+      // Warn if too many rows were skipped
+      const skipRate = this.processingStats.skippedRows / this.processingStats.totalRows;
+      if (skipRate > 0.5) {
+        console.warn(`Warning: High skip rate (${(skipRate * 100).toFixed(1)}%). ${this.processingStats.skippedRows} of ${this.processingStats.totalRows} rows were skipped.`);
+      }
+
+      console.log(`Successfully parsed ${this.rawData.length} rows (${this.processingStats.skippedRows} skipped)`);
+      
     } catch (error) {
-      throw new Error(`CSV parsing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      if (error instanceof DataProcessingError) {
+        throw error;
+      }
+      throw new DataProcessingError(
+        `CSV parsing failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'PARSING_ERROR',
+        { originalError: error }
+      );
     }
   }
 
@@ -167,7 +287,7 @@ export class DataProcessor {
         default:
           throw new Error(`Unsupported date format: ${this.config.dateFormat}`);
       }
-    } catch (error) {
+    } catch {
       throw new Error(`Invalid date '${dateString}' for format ${this.config.dateFormat}`);
     }
   }
@@ -237,73 +357,337 @@ export class DataProcessor {
    * Transform raw CSV data into structured DataPoints
    */
   public transformData(): void {
+    if (!this.isInitialized) {
+      throw new DataProcessingError(
+        'DataProcessor not properly initialized',
+        'NOT_INITIALIZED'
+      );
+    }
+
+    if (this.rawData.length === 0) {
+      throw new DataProcessingError(
+        'No raw data available. Call parseCSV() first.',
+        'NO_RAW_DATA'
+      );
+    }
+
     this.processedData = [];
+    let transformErrors = 0;
+    const dateParseErrors: string[] = [];
+    const valueParseErrors: string[] = [];
 
-    for (const row of this.rawData) {
-      try {
-        const date = this.parseDate(row[this.config.dateColumn] as string);
-
-        for (const valueColumn of this.config.valueColumns) {
-          const value = parseFloat(row[valueColumn] as string);
-          
-          if (isNaN(value)) {
-            console.warn(`Invalid value for ${valueColumn} in row with date ${row[this.config.dateColumn]}`);
+    try {
+      for (let rowIndex = 0; rowIndex < this.rawData.length; rowIndex++) {
+        const row = this.rawData[rowIndex];
+        
+        try {
+          // Parse date with detailed error handling
+          const dateValue = row[this.config.dateColumn];
+          if (!dateValue || dateValue === '') {
+            dateParseErrors.push(`Row ${rowIndex + 2}: Empty date value`);
+            transformErrors++;
             continue;
           }
 
-          this.processedData.push({
-            category: valueColumn,
-            value: value,
-            date: date
-          });
+          const date = this.parseDate(dateValue as string);
+
+          // Process each value column
+          for (const valueColumn of this.config.valueColumns) {
+            try {
+              const rawValue = row[valueColumn];
+              
+              // Handle missing or empty values
+              if (rawValue === undefined || rawValue === null || rawValue === '') {
+                // For missing values, we can either skip or use 0
+                // For most bar chart races, 0 is appropriate for missing data
+                this.processedData.push({
+                  category: valueColumn,
+                  value: 0,
+                  date: date
+                });
+                continue;
+              }
+
+              const value = parseFloat(rawValue as string);
+              
+              if (isNaN(value)) {
+                valueParseErrors.push(`Row ${rowIndex + 2}, Column '${valueColumn}': Invalid numeric value '${rawValue}'`);
+                // Use 0 for invalid numeric values to prevent gaps in animation
+                this.processedData.push({
+                  category: valueColumn,
+                  value: 0,
+                  date: date
+                });
+                continue;
+              }
+
+              // Validate numeric ranges
+              if (!isFinite(value)) {
+                valueParseErrors.push(`Row ${rowIndex + 2}, Column '${valueColumn}': Non-finite value ${value}`);
+                this.processedData.push({
+                  category: valueColumn,
+                  value: 0,
+                  date: date
+                });
+                continue;
+              }
+
+              // Check for extremely large values that might be errors
+              if (Math.abs(value) > 1e15) {
+                console.warn(`Row ${rowIndex + 2}, Column '${valueColumn}': Extremely large value ${value} - this might be a data error`);
+              }
+
+              this.processedData.push({
+                category: valueColumn,
+                value: value,
+                date: date
+              });
+
+            } catch (error) {
+              valueParseErrors.push(`Row ${rowIndex + 2}, Column '${valueColumn}': ${error instanceof Error ? error.message : 'Unknown error'}`);
+              transformErrors++;
+            }
+          }
+
+        } catch (error) {
+          if (error.message.includes('Invalid date')) {
+            dateParseErrors.push(`Row ${rowIndex + 2}: ${error.message}`);
+          } else {
+            dateParseErrors.push(`Row ${rowIndex + 2}: Failed to process - ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+          transformErrors++;
         }
-      } catch (error) {
-        console.warn(`Failed to process row: ${error}`);
+      }
+
+      // Report parsing errors
+      if (dateParseErrors.length > 0) {
+        const sampleErrors = dateParseErrors.slice(0, 5);
+        console.warn(`Date parsing errors (${dateParseErrors.length} total):`, sampleErrors);
+        if (dateParseErrors.length > 5) {
+          console.warn(`... and ${dateParseErrors.length - 5} more date errors`);
+        }
+      }
+
+      if (valueParseErrors.length > 0) {
+        const sampleErrors = valueParseErrors.slice(0, 5);
+        console.warn(`Value parsing errors (${valueParseErrors.length} total):`, sampleErrors);
+        if (valueParseErrors.length > 5) {
+          console.warn(`... and ${valueParseErrors.length - 5} more value errors`);
+        }
+      }
+
+      if (this.processedData.length === 0) {
+        throw new DataProcessingError(
+          'No valid data points generated from CSV',
+          'NO_PROCESSED_DATA',
+          {
+            rawDataRows: this.rawData.length,
+            dateParseErrors: dateParseErrors.length,
+            valueParseErrors: valueParseErrors.length,
+            sampleDateErrors: dateParseErrors.slice(0, 3),
+            sampleValueErrors: valueParseErrors.slice(0, 3)
+          }
+        );
+      }
+
+      // Sort by date for consistent processing
+      this.processedData.sort((a, b) => a.date.getTime() - b.date.getTime());
+      
+      // Validate data consistency
+      this.validateTransformedData();
+      
+      const errorRate = transformErrors / (this.rawData.length * this.config.valueColumns.length);
+      if (errorRate > 0.1) {
+        console.warn(`High transformation error rate: ${(errorRate * 100).toFixed(1)}% of data points had errors`);
+      }
+      
+      console.log(`Successfully transformed ${this.processedData.length} data points (${transformErrors} errors)`);
+      
+    } catch (error) {
+      if (error instanceof DataProcessingError) {
+        throw error;
+      }
+      throw new DataProcessingError(
+        `Data transformation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'TRANSFORMATION_ERROR',
+        { originalError: error }
+      );
+    }
+  }
+
+  /**
+   * Validate transformed data for consistency and quality
+   */
+  private validateTransformedData(): void {
+    if (this.processedData.length === 0) {
+      return;
+    }
+
+    // Check for temporal consistency
+    const categories = this.getUniqueCategories();
+    const dates = Array.from(new Set(this.processedData.map(d => d.date.getTime()))).sort();
+    
+    // Warn if data is sparse
+    let missingDataPoints = 0;
+    for (const category of categories) {
+      const categoryData = this.processedData.filter(d => d.category === category);
+      const categoryDates = new Set(categoryData.map(d => d.date.getTime()));
+      
+      for (const dateTime of dates) {
+        if (!categoryDates.has(dateTime)) {
+          missingDataPoints++;
+        }
       }
     }
 
-    if (this.processedData.length === 0) {
-      throw new Error('No valid data points generated from CSV');
+    if (missingDataPoints > 0) {
+      const totalExpected = categories.length * dates.length;
+      const coverage = ((totalExpected - missingDataPoints) / totalExpected) * 100;
+      console.warn(`Data coverage: ${coverage.toFixed(1)}% (${missingDataPoints} missing data points)`);
     }
 
-    // Sort by date for consistent processing
-    this.processedData.sort((a, b) => a.date.getTime() - b.date.getTime());
+    // Check for negative values that might be unexpected
+    const negativeValues = this.processedData.filter(d => d.value < 0);
+    if (negativeValues.length > 0) {
+      console.warn(`Found ${negativeValues.length} negative values. This might be intentional or could indicate data issues.`);
+    }
+
+    // Check date range
+    const timeSpan = this.getMaxDate().getTime() - this.getMinDate().getTime();
+    const daySpan = timeSpan / (1000 * 60 * 60 * 24);
     
-    console.log(`Transformed ${this.processedData.length} data points`);
+    if (daySpan < 1) {
+      console.warn('Data spans less than one day. Animation may appear static.');
+    } else if (daySpan > 36500) { // 100 years
+      console.warn('Data spans more than 100 years. Consider filtering to a more specific time range.');
+    }
   }
 
   /**
    * Generate frame-by-frame data for video rendering
    */
   public generateFrameData(durationSeconds: number): FrameData[] {
+    if (!this.isInitialized) {
+      throw new DataProcessingError(
+        'DataProcessor not properly initialized',
+        'NOT_INITIALIZED'
+      );
+    }
+
     if (this.processedData.length === 0) {
-      throw new Error('No processed data available. Call transformData() first.');
+      throw new DataProcessingError(
+        'No processed data available. Call transformData() first.',
+        'NO_PROCESSED_DATA'
+      );
     }
 
-    const totalFrames = Math.ceil(durationSeconds * this.config.fps);
-    const startDate = this.config.startDate || this.getMinDate();
-    const endDate = this.config.endDate || this.getMaxDate();
-    const timeSpan = endDate.getTime() - startDate.getTime();
-
-    this.frameData = [];
-
-    for (let frame = 0; frame < totalFrames; frame++) {
-      const progress = frame / (totalFrames - 1);
-      const currentTime = startDate.getTime() + (progress * timeSpan);
-      const currentDate = new Date(currentTime);
-
-      const frameDataPoints = this.interpolateDataAtTime(currentDate);
-      const rankedData = this.calculateRankings(frameDataPoints);
-
-      this.frameData.push({
-        frame,
-        timestamp: currentTime,
-        date: currentDate,
-        data: rankedData.slice(0, this.config.topN)
-      });
+    // Validate inputs
+    if (!durationSeconds || durationSeconds <= 0) {
+      throw new DataProcessingError(
+        'Duration must be a positive number',
+        'INVALID_DURATION',
+        { duration: durationSeconds }
+      );
     }
 
-    return this.frameData;
+    if (durationSeconds > 3600) {
+      console.warn('Duration exceeds 1 hour. This may result in very large files and long processing times.');
+    }
+
+    try {
+      const totalFrames = Math.ceil(durationSeconds * this.config.fps);
+      const startDate = this.config.startDate || this.getMinDate();
+      const endDate = this.config.endDate || this.getMaxDate();
+      const timeSpan = endDate.getTime() - startDate.getTime();
+
+      if (timeSpan <= 0) {
+        throw new DataProcessingError(
+          'Invalid date range: start date must be before end date',
+          'INVALID_DATE_RANGE',
+          { 
+            startDate: startDate.toISOString(), 
+            endDate: endDate.toISOString() 
+          }
+        );
+      }
+
+      this.frameData = [];
+      let interpolationErrors = 0;
+
+      for (let frame = 0; frame < totalFrames; frame++) {
+        try {
+          const progress = totalFrames > 1 ? frame / (totalFrames - 1) : 0;
+          const currentTime = startDate.getTime() + (progress * timeSpan);
+          const currentDate = new Date(currentTime);
+
+          const frameDataPoints = this.interpolateDataAtTime(currentDate);
+          
+          if (frameDataPoints.length === 0) {
+            console.warn(`No data available for frame ${frame} (${currentDate.toISOString()})`);
+            // Create empty frame data
+            this.frameData.push({
+              frame,
+              timestamp: currentTime,
+              date: currentDate,
+              data: []
+            });
+            continue;
+          }
+
+          const rankedData = this.calculateRankings(frameDataPoints);
+          const topData = rankedData.slice(0, this.config.topN || 10);
+
+          this.frameData.push({
+            frame,
+            timestamp: currentTime,
+            date: currentDate,
+            data: topData
+          });
+
+        } catch (error) {
+          interpolationErrors++;
+          console.warn(`Frame ${frame} interpolation error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          
+          // Create a fallback frame
+          this.frameData.push({
+            frame,
+            timestamp: startDate.getTime() + ((frame / (totalFrames - 1)) * timeSpan),
+            date: new Date(startDate.getTime() + ((frame / (totalFrames - 1)) * timeSpan)),
+            data: []
+          });
+        }
+      }
+
+      if (interpolationErrors > 0) {
+        const errorRate = interpolationErrors / totalFrames;
+        if (errorRate > 0.1) {
+          throw new DataProcessingError(
+            `High frame interpolation error rate: ${(errorRate * 100).toFixed(1)}%`,
+            'HIGH_INTERPOLATION_ERROR_RATE',
+            { 
+              errors: interpolationErrors, 
+              totalFrames,
+              errorRate 
+            }
+          );
+        } else {
+          console.warn(`Frame generation completed with ${interpolationErrors} interpolation errors`);
+        }
+      }
+
+      console.log(`Generated ${this.frameData.length} frames for ${durationSeconds}s duration`);
+      return this.frameData;
+
+    } catch (error) {
+      if (error instanceof DataProcessingError) {
+        throw error;
+      }
+      throw new DataProcessingError(
+        `Frame data generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'FRAME_GENERATION_ERROR',
+        { originalError: error }
+      );
+    }
   }
 
   /**
@@ -524,35 +908,111 @@ export class DataProcessor {
   }
 
   /**
+   * Get processing statistics
+   */
+  public getProcessingStats() {
+    return {
+      ...this.processingStats,
+      processedDataPoints: this.processedData.length,
+      generatedFrames: this.frameData.length,
+      isInitialized: this.isInitialized
+    };
+  }
+
+  /**
+   * Reset the processor state
+   */
+  public reset(): void {
+    this.rawData = [];
+    this.processedData = [];
+    this.frameData = [];
+    this.processingStats = {
+      totalRows: 0,
+      validRows: 0,
+      skippedRows: 0,
+      errors: []
+    };
+  }
+
+  /**
    * Validate configuration
    */
   public static validateConfig(config: ProcessingConfig): string[] {
     const errors: string[] = [];
 
-    if (!config.dateColumn) {
-      errors.push('dateColumn is required');
+    if (!config) {
+      errors.push('Configuration is required');
+      return errors;
     }
 
-    if (!config.valueColumns || config.valueColumns.length === 0) {
-      errors.push('valueColumns must contain at least one column');
+    if (!config.dateColumn || typeof config.dateColumn !== 'string') {
+      errors.push('dateColumn is required and must be a string');
     }
 
-    if (!['YYYY-MM-DD', 'YYYY-MM', 'YYYY', 'MM/DD/YYYY', 'DD/MM/YYYY'].includes(config.dateFormat)) {
+    if (!config.valueColumns || !Array.isArray(config.valueColumns) || config.valueColumns.length === 0) {
+      errors.push('valueColumns must be a non-empty array');
+    } else {
+      // Check that all value columns are strings
+      const invalidColumns = config.valueColumns.filter(col => typeof col !== 'string' || col.trim() === '');
+      if (invalidColumns.length > 0) {
+        errors.push('All valueColumns must be non-empty strings');
+      }
+
+      // Check for duplicate columns
+      const uniqueColumns = new Set(config.valueColumns);
+      if (uniqueColumns.size !== config.valueColumns.length) {
+        errors.push('valueColumns cannot contain duplicates');
+      }
+    }
+
+    if (!config.dateFormat || !['YYYY-MM-DD', 'YYYY-MM', 'YYYY', 'MM/DD/YYYY', 'DD/MM/YYYY'].includes(config.dateFormat)) {
       errors.push('dateFormat must be one of: YYYY-MM-DD, YYYY-MM, YYYY, MM/DD/YYYY, DD/MM/YYYY');
     }
 
-    if (!['linear', 'smooth', 'step'].includes(config.interpolationMethod)) {
+    if (!config.interpolationMethod || !['linear', 'smooth', 'step'].includes(config.interpolationMethod)) {
       errors.push('interpolationMethod must be one of: linear, smooth, step');
     }
 
-    if (config.fps && (config.fps < 1 || config.fps > 120)) {
-      errors.push('fps must be between 1 and 120');
+    if (config.fps !== undefined) {
+      if (typeof config.fps !== 'number' || config.fps < 1 || config.fps > 120) {
+        errors.push('fps must be a number between 1 and 120');
+      }
     }
 
-    if (config.topN && config.topN < 1) {
-      errors.push('topN must be greater than 0');
+    if (config.topN !== undefined) {
+      if (typeof config.topN !== 'number' || config.topN < 1 || config.topN > 100) {
+        errors.push('topN must be a number between 1 and 100');
+      }
+    }
+
+    if (config.startDate !== undefined) {
+      if (!(config.startDate instanceof Date) || isNaN(config.startDate.getTime())) {
+        errors.push('startDate must be a valid Date object');
+      }
+    }
+
+    if (config.endDate !== undefined) {
+      if (!(config.endDate instanceof Date) || isNaN(config.endDate.getTime())) {
+        errors.push('endDate must be a valid Date object');
+      }
+    }
+
+    if (config.startDate && config.endDate && config.startDate >= config.endDate) {
+      errors.push('startDate must be before endDate');
     }
 
     return errors;
+  }
+
+  /**
+   * Create a safe DataProcessor instance with validation
+   */
+  public static createSafe(config: ProcessingConfig): DataProcessor {
+    try {
+      return new DataProcessor(config);
+    } catch (error) {
+      console.error('Failed to create DataProcessor:', error);
+      throw error;
+    }
   }
 }

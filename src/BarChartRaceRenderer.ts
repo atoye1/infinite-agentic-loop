@@ -1,6 +1,9 @@
-import { RenderPipeline, RenderConfig, RenderResult } from './RenderPipeline';
-import { OutputManager } from './OutputManager';
+import { RenderPipeline, RenderConfig, RenderResult, RenderProgress } from './RenderPipeline';
+import { OutputManager, RenderMetadata } from './OutputManager';
 import { BatchConfigBuilder, ExampleConfigs } from './BatchConfig';
+import { Composition } from '@remotion/renderer';
+
+type RenderHistoryEntry = RenderMetadata;
 
 /**
  * Main class that orchestrates the entire Bar Chart Race rendering process
@@ -9,9 +12,9 @@ import { BatchConfigBuilder, ExampleConfigs } from './BatchConfig';
 export class BarChartRaceRenderer {
   private pipeline: RenderPipeline;
   private outputManager: OutputManager;
-  private onProgress?: (progress: any) => void;
+  private onProgress?: (progress: RenderProgress) => void;
 
-  constructor(outputDir: string = './output', onProgress?: (progress: any) => void) {
+  constructor(outputDir: string = './output', onProgress?: (progress: RenderProgress) => void) {
     this.onProgress = onProgress;
     this.pipeline = new RenderPipeline(onProgress);
     this.outputManager = new OutputManager(outputDir);
@@ -27,7 +30,7 @@ export class BarChartRaceRenderer {
   /**
    * Get available compositions
    */
-  async getCompositions(): Promise<any[]> {
+  async getCompositions(): Promise<Composition[]> {
     return await this.pipeline.getAvailableCompositions();
   }
 
@@ -39,7 +42,7 @@ export class BarChartRaceRenderer {
     format?: 'mp4' | 'webm';
     quality?: 'low' | 'medium' | 'high' | 'max';
     outputPath?: string;
-    props?: Record<string, any>;
+    props?: Record<string, unknown>;
     category?: 'production' | 'test' | 'draft';
   }): Promise<RenderResult> {
     const startTime = Date.now();
@@ -142,7 +145,7 @@ export class BarChartRaceRenderer {
   /**
    * Get render statistics
    */
-  async getStatistics(): Promise<any> {
+  async getStatistics(): Promise<Record<string, unknown>> {
     return await this.outputManager.getRenderStats();
   }
 
@@ -184,7 +187,7 @@ export class BarChartRaceRenderer {
   async estimateRender(compositionId: string, quality: string = 'medium'): Promise<{
     estimatedTime: number;
     estimatedSize: number;
-    composition: any;
+    composition: Composition;
   }> {
     const compositions = await this.getCompositions();
     const composition = compositions.find(c => c.id === compositionId);
@@ -196,7 +199,7 @@ export class BarChartRaceRenderer {
     const estimatedSize = RenderPipeline.estimateFileSize(
       composition.durationInFrames,
       composition.fps,
-      quality as any
+      quality as RenderConfig['quality']
     );
 
     // Rough time estimate: 1 second per frame (varies greatly)
@@ -212,7 +215,7 @@ export class BarChartRaceRenderer {
   /**
    * Get render history
    */
-  async getRenderHistory(limit: number = 10): Promise<any[]> {
+  async getRenderHistory(limit: number = 10): Promise<RenderHistoryEntry[]> {
     return await this.outputManager.getRenderHistory(limit);
   }
 }

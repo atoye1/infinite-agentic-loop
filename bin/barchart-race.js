@@ -1,4 +1,6 @@
 #!/usr/bin/env node
 
-// CLI entry point - transpiled version will be created during build
-require('../dist/cli/index.js');
+// CLI entry point for the unified CLI
+require('tsx/cli').run(['../src/unified-cli.ts'], {
+  NODE_ENV: process.env.NODE_ENV || 'production'
+});

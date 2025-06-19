@@ -1,0 +1,110 @@
+{
+  "output": {
+    "filename": "quick-test.mp4",
+    "format": "mp4",
+    "width": 1280,
+    "height": 720,
+    "fps": 15,
+    "duration": 3,
+    "quality": "medium"
+  },
+  "data": {
+    "csvPath": "./test-data.csv",
+    "dateColumn": "Date",
+    "dateFormat": "YYYY-MM",
+    "valueColumns": [
+      "YouTube",
+      "Netflix",
+      "Disney+"
+    ],
+    "interpolation": "smooth"
+  },
+  "layers": {
+    "background": {
+      "color": "#1a1a1a",
+      "opacity": 100
+    },
+    "chart": {
+      "position": {
+        "top": 100,
+        "right": 50,
+        "bottom": 100,
+        "left": 50
+      },
+      "chart": {
+        "visibleItemCount": 3,
+        "maxValue": "local",
+        "itemSpacing": 30
+      },
+      "animation": {
+        "type": "continuous",
+        "overtakeDuration": 0.3
+      },
+      "bar": {
+        "colors": "auto",
+        "cornerRadius": 8,
+        "opacity": 100
+      },
+      "labels": {
+        "title": {
+          "show": true,
+          "fontSize": 20,
+          "fontFamily": "Arial",
+          "color": "#ffffff",
+          "position": "outside"
+        },
+        "value": {
+          "show": true,
+          "fontSize": 16,
+          "fontFamily": "Arial",
+          "color": "#ffffff",
+          "format": "{value:,.0f}",
+          "suffix": "M"
+        },
+        "rank": {
+          "show": true,
+          "fontSize": 14,
+          "backgroundColor": "#333333",
+          "textColor": "#ffffff"
+        }
+      }
+    },
+    "title": {
+      "text": "Quick Test",
+      "position": {
+        "top": 30,
+        "align": "center"
+      },
+      "style": {
+        "fontSize": 32,
+        "fontFamily": "Arial",
+        "color": "#ffffff",
+        "opacity": 100
+      },
+      "timeline": {
+        "startTime": 0,
+        "duration": 3
+      }
+    },
+    "date": {
+      "position": {
+        "bottom": 30,
+        "right": 50
+      },
+      "format": {
+        "pattern": "MMMM YYYY",
+        "locale": "en-US"
+      },
+      "style": {
+        "fontSize": 24,
+        "fontFamily": "Arial",
+        "color": "#ffffff",
+        "opacity": 80
+      },
+      "animation": {
+        "type": "continuous",
+        "duration": 0.2
+      }
+    }
+  }
+}

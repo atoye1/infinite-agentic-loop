@@ -7,6 +7,7 @@ import { ChartLayer } from './ChartLayer';
 import { TitleLayer } from './TitleLayer';
 import { DateLayer } from './DateLayer';
 import { getFrameData } from './utils';
+import { ErrorBoundary, DataErrorBoundary } from './components/ErrorBoundary';
 
 // Schema for props validation  
 export const barChartRaceSchema = z.object({
@@ -159,58 +160,99 @@ export const BarChartRaceComposition: React.FC<BarChartRaceCompositionProps> = (
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   
-  // Get current frame data
-  const currentData = getFrameData(processedData, frame);
+  return (
+    <ErrorBoundary>
+      <DataErrorBoundary dataSource={config?.data?.csvPath}>
+        <BarChartRaceCompositionInner 
+          config={config}
+          processedData={processedData}
+          frame={frame}
+          fps={fps}
+        />
+      </DataErrorBoundary>
+    </ErrorBoundary>
+  );
+};
+
+const BarChartRaceCompositionInner: React.FC<BarChartRaceCompositionProps & { frame: number; fps: number }> = ({
+  config,
+  processedData,
+  frame,
+  fps
+}) => {
+  // Validate required props
+  if (!config) {
+    throw new Error('Configuration is required');
+  }
+
+  if (!processedData) {
+    throw new Error('Processed data is required');
+  }
+
+  // Get current frame data with error handling
+  let currentData;
+  try {
+    currentData = getFrameData(processedData, frame);
+  } catch (error) {
+    console.error('Error getting frame data:', error);
+    throw new Error(`Failed to get data for frame ${frame}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
   
-  // Validate data
-  if (!currentData || !currentData.items || currentData.items.length === 0) {
-    return (
-      <AbsoluteFill
-        style={{
-          backgroundColor: '#000000',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#ffffff',
-          fontSize: 24,
-          fontFamily: 'Arial, sans-serif',
-        }}
-      >
-        No data available for frame {frame}
-      </AbsoluteFill>
-    );
+  // Validate data - provide fallback for missing data
+  if (!currentData) {
+    console.warn(`No data available for frame ${frame}`);
+    // Create fallback data structure
+    currentData = {
+      frame,
+      date: new Date().toISOString(),
+      items: [],
+      maxValue: 0
+    };
+  }
+
+  // Ensure items array exists
+  if (!currentData.items) {
+    currentData.items = [];
   }
   
   return (
     <AbsoluteFill>
       {/* Background Layer */}
-      <BackgroundLayer config={config.layers.background} />
+      <ErrorBoundary fallback={<div>Background layer error</div>}>
+        <BackgroundLayer config={config.layers?.background} />
+      </ErrorBoundary>
       
       {/* Chart Layer */}
-      <ChartLayer
-        config={config.layers.chart}
-        data={currentData}
-        frame={frame}
-        fps={fps}
-      />
-      
-      {/* Title Layer */}
-      {config.layers.title && (
-        <TitleLayer
-          config={config.layers.title}
+      <ErrorBoundary fallback={<div>Chart layer error</div>}>
+        <ChartLayer
+          config={config.layers?.chart}
+          data={currentData}
           frame={frame}
           fps={fps}
         />
+      </ErrorBoundary>
+      
+      {/* Title Layer */}
+      {config.layers?.title && (
+        <ErrorBoundary fallback={<div>Title layer error</div>}>
+          <TitleLayer
+            config={config.layers.title}
+            frame={frame}
+            fps={fps}
+          />
+        </ErrorBoundary>
       )}
       
       {/* Date Layer */}
-      {config.layers.date && (
-        <DateLayer
-          config={config.layers.date}
-          currentDate={currentData.date}
-          frame={frame}
-          fps={fps}
-        />
+      {config.layers?.date && (
+        <ErrorBoundary fallback={<div>Date layer error</div>}>
+          <DateLayer
+            config={config.layers.date}
+            currentDate={currentData.date}
+            frame={frame}
+            fps={fps}
+          />
+        </ErrorBoundary>
       )}
     </AbsoluteFill>
   );

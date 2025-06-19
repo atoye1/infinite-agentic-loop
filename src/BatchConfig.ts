@@ -42,7 +42,7 @@ export class BatchConfigBuilder {
     compositionId: string,
     format: 'mp4' | 'webm' = 'mp4',
     qualities: Array<'low' | 'medium' | 'high' | 'max'> = ['low', 'medium', 'high'],
-    props?: Record<string, any>
+    props?: Record<string, unknown>
   ): BatchConfigBuilder {
     qualities.forEach(quality => {
       this.addRender({
@@ -63,7 +63,7 @@ export class BatchConfigBuilder {
   addFormatVariants(
     compositionId: string,
     quality: 'low' | 'medium' | 'high' | 'max' = 'medium',
-    props?: Record<string, any>
+    props?: Record<string, unknown>
   ): BatchConfigBuilder {
     ['mp4', 'webm'].forEach(format => {
       this.addRender({
@@ -83,7 +83,7 @@ export class BatchConfigBuilder {
    */
   addFullGrid(
     compositionId: string,
-    props?: Record<string, any>
+    props?: Record<string, unknown>
   ): BatchConfigBuilder {
     const qualities: Array<'low' | 'medium' | 'high' | 'max'> = ['low', 'medium', 'high', 'max'];
     const formats: Array<'mp4' | 'webm'> = ['mp4', 'webm'];
@@ -195,7 +195,7 @@ export const ExampleConfigs = {
   /**
    * Create a production batch with optimized settings
    */
-  production(compositionId: string, props?: Record<string, any>): BatchRenderConfig {
+  production(compositionId: string, props?: Record<string, unknown>): BatchRenderConfig {
     return new BatchConfigBuilder('Production Render', './output/production')
       .addRender({
         compositionId,
@@ -219,13 +219,20 @@ export const ExampleConfigs = {
 };
 
 // Utility functions for batch processing
+
+interface Composition {
+  id: string;
+  durationInFrames: number;
+  fps: number;
+}
+
 export class BatchUtils {
   /**
    * Estimate total batch processing time
    */
   static estimateBatchTime(
     config: BatchRenderConfig,
-    compositions: any[]
+    compositions: Composition[]
   ): { totalFrames: number; estimatedMinutes: number } {
     let totalFrames = 0;
     
@@ -248,7 +255,7 @@ export class BatchUtils {
    */
   static estimateBatchSize(
     config: BatchRenderConfig,
-    compositions: any[]
+    compositions: Composition[]
   ): number {
     let totalSize = 0;
 
@@ -265,7 +272,7 @@ export class BatchUtils {
   /**
    * Estimate size for a single render
    */
-  private static estimateRenderSize(composition: any, quality: string): number {
+  private static estimateRenderSize(composition: Composition, quality: string): number {
     const durationInSeconds = composition.durationInFrames / composition.fps;
     const baseSizePerSecond = 1024 * 1024; // 1MB per second baseline
 
@@ -282,7 +289,7 @@ export class BatchUtils {
   /**
    * Generate a summary report for a batch configuration
    */
-  static generateSummary(config: BatchRenderConfig, compositions: any[]): string {
+  static generateSummary(config: BatchRenderConfig, compositions: Composition[]): string {
     const { totalFrames, estimatedMinutes } = this.estimateBatchTime(config, compositions);
     const totalSize = this.estimateBatchSize(config, compositions);
     

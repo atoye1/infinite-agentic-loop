@@ -1,4 +1,5 @@
 // Bar Chart Race TypeScript interfaces
+import { TimingFunction } from './utils/AnimationUtils';
 
 export interface BarChartRaceConfig {
   output: {
@@ -220,19 +221,37 @@ export interface AdvancedAnimationsConfig {
     type: 'spring' | 'interpolate';
     springPreset?: string;
     duration?: number;
-    easing?: string;
+    easing?: TimingFunction;
     staggerDelay?: number;
   };
   rank?: {
     type: 'spring' | 'interpolate';
     springPreset?: string;
     duration?: number;
-    easing?: string;
+    easing?: TimingFunction;
   };
   entry?: {
     effect: 'fade' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'zoom' | 'flip';
     duration: number;
     delay: number;
+  };
+  overtaking?: {
+    enabled?: boolean;
+    preset?: 'smooth' | 'dramatic' | 'swift' | 'bouncy';
+    customConfig?: {
+      duration: number;
+      easing: 'smooth' | 'elastic' | 'bounce' | 'aggressive';
+      trailEffect: boolean;
+      glowIntensity: number;
+      curveIntensity: number;
+      accelerationCurve: 'linear' | 'exponential' | 'logarithmic';
+    };
+  };
+  celebrations?: {
+    enabled?: boolean;
+    recordPreset?: 'subtle' | 'exciting' | 'epic';
+    overtakePreset?: 'subtle' | 'exciting' | 'epic';
+    milestones?: number[];
   };
   effects?: {
     shake?: boolean;

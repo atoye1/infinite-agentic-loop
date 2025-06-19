@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+import { useCurrentFrame, useVideoConfig, interpolate, spring, Img } from 'remotion';
 import { BarItemProps } from './types';
 import { formatValue, getItemColor, calculateItemHeight } from './utils';
 import { 
@@ -10,6 +10,15 @@ import {
   createRevealAnimation,
   SpringPresets 
 } from './utils/AnimationUtils';
+import { 
+  animateOvertaking, 
+  detectOvertaking, 
+  OvertakingPresets 
+} from './utils/OvertakingAnimations';
+import { 
+  createSparkleEffect,
+  createBurstEffect 
+} from './utils/CelebrationAnimations';
 
 export const BarItem: React.FC<BarItemProps> = ({
   item,
@@ -54,47 +63,99 @@ export const BarItem: React.FC<BarItemProps> = ({
       }
     );
   
-  // Advanced vertical position animation for rank changes
-  const fromY = index * (itemHeight + config.chart.itemSpacing);
-  const toY = (item.rank - 1) * (itemHeight + config.chart.itemSpacing);
+  // Enhanced overtaking detection
+  const isActuallyOvertaking = detectOvertaking(item.rank, previousRank, 0);
+  const overtakeIntensity = previousRank ? Math.abs(item.rank - previousRank) : 0;
   
-  const rankAnimationConfig = config.animations?.rank || { type: 'spring', springPreset: 'bouncy' };
+  // Use enhanced overtaking animation system
+  let yPosition: number;
+  let xOffset: number = 0;
+  let overtakeEffects: any = { trailOpacity: 0, glow: { shadowBlur: 0, shadowColor: 'transparent', glowScale: 1 }, zIndex: 1 };
   
-  const yPosition = rankAnimationConfig.type === 'spring' ?
-    spring({
+  if (isActuallyOvertaking && config.animations?.overtaking?.enabled !== false) {
+    // Select overtaking preset based on intensity
+    const overtakePreset = overtakeIntensity > 3 ? 'dramatic' : overtakeIntensity > 1 ? 'smooth' : 'swift';
+    const overtakeConfig = config.animations?.overtaking?.preset ? 
+      OvertakingPresets[config.animations.overtaking.preset] : 
+      OvertakingPresets[overtakePreset];
+    
+    const overtakeAnimation = animateOvertaking(
       frame,
       fps,
-      config: SpringPresets[rankAnimationConfig.springPreset as keyof typeof SpringPresets] || SpringPresets.bouncy,
-      from: fromY,
-      to: toY,
-    }) :
-    createAdvancedAnimation(
-      frame,
-      fps,
-      fromY,
-      toY,
-      {
-        type: 'interpolate',
-        duration: rankAnimationConfig.duration || 0.8,
-        easing: rankAnimationConfig.easing || 'easeInOutElastic',
-        delay: Math.abs(previousRank - item.rank) * 0.05 // Longer distance = more delay
-      }
+      previousRank || item.rank,
+      item.rank,
+      itemHeight,
+      config.chart.itemSpacing,
+      overtakeConfig
     );
+    
+    yPosition = overtakeAnimation.position.y;
+    xOffset = overtakeAnimation.position.x;
+    overtakeEffects = overtakeAnimation.effects;
+  } else {
+    // Regular position animation
+    const fromY = index * (itemHeight + config.chart.itemSpacing);
+    const toY = (item.rank - 1) * (itemHeight + config.chart.itemSpacing);
+    
+    const rankAnimationConfig = config.animations?.rank || { type: 'spring', springPreset: 'bouncy' };
+    
+    yPosition = rankAnimationConfig.type === 'spring' ?
+      spring({
+        frame,
+        fps,
+        config: SpringPresets[rankAnimationConfig.springPreset as keyof typeof SpringPresets] || SpringPresets.bouncy,
+        from: fromY,
+        to: toY,
+      }) :
+      createAdvancedAnimation(
+        frame,
+        fps,
+        fromY,
+        toY,
+        {
+          type: 'interpolate',
+          duration: rankAnimationConfig.duration || 0.8,
+          easing: rankAnimationConfig.easing || 'easeInOutElastic',
+          delay: Math.abs((previousRank || item.rank) - item.rank) * 0.05
+        }
+      );
+  }
   
   // Dynamic color system with transitions
   const colors = config.bar.colors === 'auto' ? [] : config.bar.colors;
   const baseColor = getItemColor(item, colors, index);
   
-  // Special color effects
+  // Enhanced color effects with celebrations
   let barColor = baseColor;
+  let celebrationEffects = { sparkle: null, burst: null };
+  
   if (isNewRecord && config.animations?.effects?.recordHighlight) {
     const pulseColor = '#FFD700'; // Gold for records
     const pulseIntensity = createPulseAnimation(frame, fps, 0, 1, 3); // Fast pulse
     barColor = interpolateColor(Math.abs(pulseIntensity), baseColor, pulseColor);
-  } else if (isOvertaking && config.animations?.effects?.overtakeHighlight) {
-    const overtakeColor = '#00FF00'; // Green for overtaking
+    
+    // Add sparkle effect for new records
+    if (config.animations?.celebrations?.enabled !== false) {
+      const sparkle = createSparkleEffect(
+        frame,
+        fps,
+        animatedWidth / 2,
+        itemHeight / 2,
+        1.5,
+        0.8
+      );
+      celebrationEffects.sparkle = sparkle;
+    }
+  } else if (isActuallyOvertaking && config.animations?.effects?.overtakeHighlight) {
+    const overtakeColor = overtakeIntensity > 3 ? '#FF6B6B' : '#00FF00'; // Red for dramatic, green for normal
     const pulseIntensity = createPulseAnimation(frame, fps, 0, 0.3, 2);
     barColor = interpolateColor(Math.abs(pulseIntensity), baseColor, overtakeColor);
+    
+    // Add burst effect for dramatic overtakes
+    if (overtakeIntensity > 3 && config.animations?.celebrations?.enabled !== false) {
+      const burst = createBurstEffect(frame, fps, 0.8, 0.6);
+      celebrationEffects.burst = burst;
+    }
   }
   
   // Calculate label positions
@@ -115,11 +176,14 @@ export const BarItem: React.FC<BarItemProps> = ({
     entryConfig.delay
   );
   
-  // Base opacity with smooth entry/exit
+  // Base opacity - keep bars visible throughout the video
+  // Simple fade in at start, no fade out
+  const fadeInFrames = 5;
+  
   const baseOpacity = interpolate(
     frame,
-    [0, 10, Math.max(0, totalItems * 2 - 10), totalItems * 2],
-    [0, 1, 1, 0],
+    [0, fadeInFrames],
+    [0, 1],
     {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
@@ -142,14 +206,15 @@ export const BarItem: React.FC<BarItemProps> = ({
     <div
       style={{
         position: 'absolute',
-        left: shakeOffset.x,
+        left: shakeOffset.x + xOffset,
         top: yPosition + shakeOffset.y,
         width: containerWidth,
         height: itemHeight,
         opacity: opacity,
-        transform: `${entryAnimation.transform} scale(${pulseScale})`,
+        transform: `${entryAnimation.transform} scale(${pulseScale * overtakeEffects.glow.glowScale})`,
         transition: config.animation.type === 'continuous' ? 'none' : 'all 0.3s ease-in-out',
-        zIndex: isNewRecord ? 100 : isOvertaking ? 50 : 1,
+        zIndex: isNewRecord ? 150 : overtakeEffects.zIndex,
+        filter: overtakeEffects.glow.shadowBlur > 0 ? `drop-shadow(0 0 ${overtakeEffects.glow.shadowBlur}px ${overtakeEffects.glow.shadowColor})` : 'none',
       }}
     >
       {/* Bar */}
@@ -160,21 +225,21 @@ export const BarItem: React.FC<BarItemProps> = ({
           top: 0,
           width: animatedWidth,
           height: itemHeight,
-          background: config.animations?.effects?.gradient && (isNewRecord || isOvertaking) ?
+          background: config.animations?.effects?.gradient && (isNewRecord || isActuallyOvertaking) ?
             `linear-gradient(45deg, ${barColor}, ${barColor}88, ${barColor})` :
             barColor,
           borderRadius: config.bar.cornerRadius,
-          opacity: config.bar.opacity / 100,
+          opacity: (config.bar.opacity / 100) * (1 - overtakeEffects.trailOpacity * 0.3),
           boxShadow: isNewRecord 
             ? `0 0 20px ${barColor}, 0 4px 16px rgba(0, 0, 0, 0.2)` 
-            : isOvertaking 
+            : isActuallyOvertaking 
               ? `0 0 12px ${barColor}66, 0 2px 12px rgba(0, 0, 0, 0.15)` 
               : '0 2px 8px rgba(0, 0, 0, 0.1)',
           transition: 'box-shadow 0.3s ease-in-out',
         }}
       >
         {/* Shimmer effect for special moments */}
-        {(isNewRecord || isOvertaking) && config.animations?.effects?.shimmer && (
+        {(isNewRecord || isActuallyOvertaking) && config.animations?.effects?.shimmer && (
           <div
             style={{
               position: 'absolute',
@@ -187,6 +252,58 @@ export const BarItem: React.FC<BarItemProps> = ({
               transition: 'transform 0.8s ease-in-out',
             }}
           />
+        )}
+        
+        {/* Sparkle effect for new records */}
+        {celebrationEffects.sparkle && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '90%',
+              transform: `translate(-50%, -50%) scale(${celebrationEffects.sparkle.scale})`,
+              width: 40,
+              height: 40,
+              opacity: celebrationEffects.sparkle.opacity,
+              filter: `blur(${celebrationEffects.sparkle.blur}px)`,
+              pointerEvents: 'none',
+            }}
+          >
+            <svg width="40" height="40" viewBox="0 0 40 40">
+              <path
+                d="M20,1 L25,15 L39,15 L27,25 L32,39 L20,29 L8,39 L13,25 L1,15 L15,15 Z"
+                fill="#FFD700"
+                opacity="0.8"
+              />
+            </svg>
+          </div>
+        )}
+        
+        {/* Burst effect for dramatic overtakes */}
+        {celebrationEffects.burst && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: `translate(-50%, -50%) scale(${celebrationEffects.burst.scale})`,
+              width: 60,
+              height: 60,
+              opacity: celebrationEffects.burst.opacity,
+              pointerEvents: 'none',
+            }}
+          >
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle
+                cx="30"
+                cy="30"
+                r="25"
+                fill="none"
+                stroke="#FF6B6B"
+                strokeWidth={celebrationEffects.burst.strokeWidth}
+              />
+            </svg>
+          </div>
         )}
       </div>
       
@@ -204,9 +321,8 @@ export const BarItem: React.FC<BarItemProps> = ({
             zIndex: 2,
           }}
         >
-          <img
+          <Img
             src={item.image}
-            alt={item.name}
             style={{
               width: '100%',
               height: '100%',

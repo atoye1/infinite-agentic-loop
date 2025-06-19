@@ -176,10 +176,138 @@ export function validateFrameData(data: FrameData): boolean {
   return true;
 }
 
-// Get frame data with bounds checking
+// Get frame data with comprehensive error handling
 export function getFrameData(processedData: ProcessedData, frame: number): FrameData {
+  // Validate inputs
+  if (!processedData) {
+    throw new Error('ProcessedData is required');
+  }
+
+  if (!processedData.frames || !Array.isArray(processedData.frames)) {
+    throw new Error('ProcessedData.frames must be an array');
+  }
+
+  if (processedData.frames.length === 0) {
+    throw new Error('ProcessedData.frames cannot be empty');
+  }
+
+  if (typeof frame !== 'number' || isNaN(frame)) {
+    throw new Error('Frame must be a valid number');
+  }
+
+  // Clamp frame to valid range
   const clampedFrame = Math.max(0, Math.min(frame, processedData.frames.length - 1));
-  return processedData.frames[clampedFrame];
+  const frameData = processedData.frames[clampedFrame];
+
+  // Validate frame data structure
+  if (!frameData) {
+    throw new Error(`Frame data not found for frame ${clampedFrame}`);
+  }
+
+  // Ensure frame data has required properties
+  if (!frameData.hasOwnProperty('frame')) {
+    frameData.frame = clampedFrame;
+  }
+
+  if (!frameData.hasOwnProperty('items')) {
+    frameData.items = [];
+  }
+
+  if (!frameData.hasOwnProperty('maxValue')) {
+    frameData.maxValue = frameData.items.length > 0 
+      ? Math.max(...frameData.items.map(item => item.value || 0))
+      : 0;
+  }
+
+  if (!frameData.hasOwnProperty('date')) {
+    frameData.date = new Date().toISOString();
+  }
+
+  return frameData;
+}
+
+// Safe data access with fallbacks
+export function safeGetFrameData(processedData: ProcessedData | null | undefined, frame: number): FrameData | null {
+  try {
+    if (!processedData) return null;
+    return getFrameData(processedData, frame);
+  } catch (error) {
+    console.warn(`Failed to get frame data for frame ${frame}:`, error);
+    return null;
+  }
+}
+
+// Validate processed data structure
+export function validateProcessedData(data: ProcessedData): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (!data) {
+    errors.push('ProcessedData is null or undefined');
+    return { isValid: false, errors };
+  }
+
+  if (!data.frames || !Array.isArray(data.frames)) {
+    errors.push('frames must be an array');
+  } else if (data.frames.length === 0) {
+    errors.push('frames array cannot be empty');
+  } else {
+    // Validate each frame
+    data.frames.forEach((frame, index) => {
+      if (!frame) {
+        errors.push(`Frame ${index} is null or undefined`);
+        return;
+      }
+
+      if (typeof frame.frame !== 'number') {
+        errors.push(`Frame ${index}: frame number must be a number`);
+      }
+
+      if (!frame.items || !Array.isArray(frame.items)) {
+        errors.push(`Frame ${index}: items must be an array`);
+      } else {
+        frame.items.forEach((item, itemIndex) => {
+          if (!item) {
+            errors.push(`Frame ${index}, Item ${itemIndex}: item is null or undefined`);
+            return;
+          }
+
+          if (!item.id || typeof item.id !== 'string') {
+            errors.push(`Frame ${index}, Item ${itemIndex}: id must be a non-empty string`);
+          }
+
+          if (!item.name || typeof item.name !== 'string') {
+            errors.push(`Frame ${index}, Item ${itemIndex}: name must be a non-empty string`);
+          }
+
+          if (typeof item.value !== 'number' || isNaN(item.value)) {
+            errors.push(`Frame ${index}, Item ${itemIndex}: value must be a valid number`);
+          }
+
+          if (typeof item.rank !== 'number' || isNaN(item.rank) || item.rank < 1) {
+            errors.push(`Frame ${index}, Item ${itemIndex}: rank must be a positive number`);
+          }
+        });
+      }
+
+      if (typeof frame.maxValue !== 'number' || isNaN(frame.maxValue)) {
+        errors.push(`Frame ${index}: maxValue must be a valid number`);
+      }
+    });
+  }
+
+  if (typeof data.totalFrames !== 'number' || data.totalFrames < 0) {
+    errors.push('totalFrames must be a non-negative number');
+  }
+
+  if (!data.valueColumns || !Array.isArray(data.valueColumns)) {
+    errors.push('valueColumns must be an array');
+  }
+
+  if (typeof data.globalMaxValue !== 'number' || isNaN(data.globalMaxValue)) {
+    errors.push('globalMaxValue must be a valid number');
+  }
+
+  return { isValid: errors.length === 0, errors };
 }
 
 // Calculate container dimensions based on config

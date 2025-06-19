@@ -3,12 +3,12 @@
  * Tests all components working together
  */
 
+import { existsSync } from 'fs';
+import { promises as fs } from 'fs';
 import { BarChartRaceRenderer } from './BarChartRaceRenderer';
 import { RenderPipeline } from './RenderPipeline';
 import { OutputManager } from './OutputManager';
 import { BatchConfigBuilder, ExampleConfigs } from './BatchConfig';
-import { existsSync } from 'fs';
-import { promises as fs } from 'fs';
 
 class IntegrationTest {
   private testOutputDir = './test-output';

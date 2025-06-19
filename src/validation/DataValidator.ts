@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs'
-import { parse } from 'csv-parse/sync'
+// import { parse } from 'csv-parse/sync' // Not installed
 import { resolve } from 'path'
 import {
   BarChartRaceConfig,
@@ -49,17 +49,30 @@ export class DataValidator {
     const fullPath = resolve(csvPath)
     const fileContent = readFileSync(fullPath, 'utf-8')
     
-    const records = parse(fileContent, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true
-    })
+    // Simple CSV parsing since csv-parse is not installed
+    const lines = fileContent.trim().split('\n')
+    if (lines.length < 2) {
+      throw new Error('CSV file must have headers and at least one data row')
+    }
+    
+    const headers = this.parseCSVLine(lines[0])
+    const records = []
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim()
+      if (line) {
+        const values = this.parseCSVLine(line)
+        const record: Record<string, string> = {}
+        headers.forEach((header, index) => {
+          record[header] = values[index] || ''
+        })
+        records.push(record)
+      }
+    }
 
     if (!records || records.length === 0) {
       throw new Error('CSV file is empty or has no data rows')
     }
-
-    const headers = Object.keys(records[0])
     
     return {
       headers,
@@ -120,8 +133,8 @@ export class DataValidator {
 
     // Validate date values
     const dateFormat = config.data.dateFormat
-    const invalidDates: Array<{ row: number, value: any }> = []
-    const duplicateDates: Array<{ row: number, value: any }> = []
+    const invalidDates: Array<{ row: number, value: unknown }> = []
+    const duplicateDates: Array<{ row: number, value: unknown }> = []
     const seenDates = new Set<string>()
 
     rawData.rows.forEach((row, index) => {
@@ -186,7 +199,7 @@ export class DataValidator {
 
     // Validate numeric values
     valueColumns.forEach(column => {
-      const invalidValues: Array<{ row: number, value: any }> = []
+      const invalidValues: Array<{ row: number, value: unknown }> = []
       
       rawData.rows.forEach((row, index) => {
         const value = row[column]
@@ -211,7 +224,7 @@ export class DataValidator {
 
   private validateDataIntegrity(rawData: RawData, config: BarChartRaceConfig, errors: ValidationError[]): void {
     const valueColumns = config.data.valueColumns
-    const dateColumn = config.data.dateColumn
+    // const dateColumn = config.data.dateColumn - unused
     
     // Check for rows with all empty values
     const emptyRows: number[] = []
@@ -366,12 +379,12 @@ export class DataValidator {
       const date = new Date(dateString)
       return isNaN(date.getTime()) ? null : date
       
-    } catch (error) {
+    } catch {
       return null
     }
   }
 
-  private parseNumericValue(value: any): number | null {
+  private parseNumericValue(value: unknown): number | null {
     if (value === undefined || value === null || value === '') {
       return null
     }
@@ -392,14 +405,42 @@ export class DataValidator {
   }
 
   // Public method to get processed data for validation
-  public getProcessedData(csvPath: string, config: BarChartRaceConfig): RawData | null {
+  public getProcessedData(csvPath: string): RawData | null {
     try {
       return this.loadCSV(csvPath)
-    } catch (error) {
+    } catch {
       return null
     }
   }
 
+  // Parse CSV line handling quotes and commas
+  private parseCSVLine(line: string): string[] {
+    const result: string[] = []
+    let current = ''
+    let inQuotes = false
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i]
+      
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"'
+          i++
+        } else {
+          inQuotes = !inQuotes
+        }
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim())
+        current = ''
+      } else {
+        current += char
+      }
+    }
+    
+    result.push(current.trim())
+    return result
+  }
+  
   // Method to validate specific data transformations
   public validateDataTransformation(
     rawData: RawData, 
@@ -410,7 +451,7 @@ export class DataValidator {
     const errors: ValidationError[] = []
     
     // Calculate expected frame count
-    const expectedFrames = Math.ceil(targetFps * targetDuration)
+    // const expectedFrames = Math.ceil(targetFps * targetDuration) - unused
     const actualDataPoints = rawData.rows.length
     
     // Check if interpolation is feasible

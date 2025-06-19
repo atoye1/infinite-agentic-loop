@@ -1,78 +1,87 @@
-# Bar Chart Race CLI Interface
+# Bar Chart Race CLI Interface (v1.0 Foundation Fix)
 
 ## Overview
 
-This document describes the CLI interface created for the Bar Chart Race system. The CLI provides a complete command-line interface for generating bar chart race videos using Remotion.js.
+This document describes the **unified CLI interface** created for the Bar Chart Race system. The CLI has been consolidated from multiple competing implementations into a single, simple command system focused on essential functionality.
 
-## Architecture
+## Architecture (Post-Consolidation)
 
-The CLI system is built with the following structure:
+The unified CLI system uses a single entry point:
 
 ```
-src/cli/
-├── index.ts              # Main CLI entry point
-├── types.ts              # TypeScript interfaces and types
-├── commands/             # Command implementations
-│   ├── render.ts         # Render command
-│   ├── validate.ts       # Validate command  
-│   └── init.ts          # Init command
-├── validators/           # Configuration and data validation
-│   ├── configValidator.ts
-│   └── dataValidator.ts
-└── pipeline/            # Rendering pipeline
-    ├── renderPipeline.ts
-    └── dataProcessor.ts
+src/
+├── unified-cli.ts        # Main unified CLI implementation
+├── cli.ts               # Legacy CLI (preserved)
+└── cli/                 # Legacy CLI directory (preserved)
+    ├── index.ts
+    ├── commands/
+    └── validators/
 ```
 
-## Commands
+**Key Changes:**
+- **Single CLI implementation** replaces dual/competing systems
+- **Simplified interface** focuses on essential render and validate functions
+- **Smart defaults** reduce configuration complexity
+- **Auto-detection** of CSV structure minimizes required configuration
 
-### 1. `barchart-race render`
+## Commands (Unified Interface)
 
-Renders a bar chart race video from configuration and data files.
+### 1. `npm run render` - Primary Render Command
 
-**Usage:**
+The main command for rendering videos from CSV data.
+
+**Basic Usage (Recommended):**
 ```bash
-barchart-race render --config config.json --data data.csv [options]
+npm run render -- data.csv
+```
+
+**Full Syntax:**
+```bash
+npm run render -- <data.csv> [options]
 ```
 
 **Options:**
-- `-c, --config <path>` - Config JSON file path (required)
-- `-d, --data <path>` - CSV data file path (required)
-- `-o, --output <path>` - Output video file path (overrides config)
+- `-c, --config <path>` - Config JSON file path (optional, uses smart defaults)
+- `-o, --output <path>` - Output video file path (default: bar-chart-race.mp4)
 - `-q, --quality <level>` - Render quality: low, medium, high, max (default: high)
-- `-p, --parallel <count>` - Number of parallel workers (default: 1)
 - `-v, --verbose` - Enable verbose logging
 - `--dry-run` - Validate configuration without rendering
 
 **Examples:**
 ```bash
-# Basic render
-barchart-race render -c config.json -d data.csv
+# Simple render with defaults
+npm run render -- sample-data.csv
 
-# High quality with parallel processing
-barchart-race render -c config.json -d data.csv --quality max --parallel 4
+# Custom quality and output
+npm run render -- sample-data.csv --quality max --output my-video.mp4
+
+# Use custom configuration
+npm run render -- sample-data.csv --config config.json
 
 # Dry run validation
-barchart-race render -c config.json -d data.csv --dry-run --verbose
+npm run render -- sample-data.csv --dry-run --verbose
 ```
 
-### 2. `barchart-race validate`
+### 2. `npm run validate` - Data Validation
 
-Validates configuration and data files without rendering.
+Validates CSV data and configuration without rendering.
 
 **Usage:**
 ```bash
-barchart-race validate --config config.json --data data.csv [options]
+npm run validate -- data.csv [options]
 ```
 
 **Options:**
-- `-c, --config <path>` - Config JSON file path (required)
-- `-d, --data <path>` - CSV data file path (required)
+- `-c, --config <path>` - Config JSON file path (optional)
 - `-v, --verbose` - Enable verbose logging
 
-**Example:**
+**Examples:**
 ```bash
-barchart-race validate -c config.json -d data.csv --verbose
+# Basic validation
+npm run validate -- sample-data.csv
+
+# Verbose validation with config
+npm run validate -- sample-data.csv --config config.json --verbose
 ```
 
 ### 3. `barchart-race init`

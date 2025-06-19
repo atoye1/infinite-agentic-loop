@@ -3,9 +3,10 @@
  * This file shows how to use all components together for real-world scenarios
  */
 
-import { DataProcessor, ProcessingConfig, FrameData } from './DataProcessor';
+import { DataProcessor, ProcessingConfig } from './DataProcessor';
 import { DataUtils } from './DataUtils';
 import { DataProcessorTest } from './DataProcessorTest';
+import { random } from 'remotion';
 
 export class DataProcessorDemo {
   /**
@@ -211,7 +212,7 @@ export class DataProcessorDemo {
 
     const rows = [`Date,${categories.join(',')}`];
     dates.forEach(date => {
-      const values = categories.map(() => Math.floor(Math.random() * 1000) + 100);
+      const values = categories.map((_, index) => Math.floor(random(`${date}-${index}`) * 1000) + 100);
       rows.push(`${date},${values.join(',')}`);
     });
 

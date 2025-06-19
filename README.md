@@ -1,35 +1,51 @@
-# Bar Chart Race Project
+# Bar Chart Race CLI
 
-This project was generated using the barchart-race CLI tool.
+A simple, unified CLI for rendering Bar Chart Race videos from CSV data using Remotion.
+
+## Quick Start
+
+The simplest way to render a video:
+
+```bash
+npm run render -- sample-data.csv
+```
 
 ## Files
 
-- `config.json` - Configuration file defining video output settings, data mapping, and visual styling
+- `config.json` - Optional configuration file (uses smart defaults if not provided)
 - `sample-data.csv` - Sample CSV data file with time series data
-- `README.md` - This file
+- `src/unified-cli.ts` - Unified CLI implementation
 
 ## Usage
 
-### 1. Validate your configuration and data
+### 1. Simple rendering (recommended)
 ```bash
-barchart-race validate --config config.json --data sample-data.csv --verbose
+# Render with default settings
+npm run render -- sample-data.csv
+
+# Render with custom quality
+npm run render -- sample-data.csv --quality high
+
+# Render with custom output name
+npm run render -- sample-data.csv --output my-video.mp4
 ```
 
-### 2. Render your video
+### 2. Validate your data first
 ```bash
-barchart-race render --config config.json --data sample-data.csv --verbose
+npm run validate -- sample-data.csv
+npm run validate -- sample-data.csv --verbose
 ```
 
-### 3. Advanced options
+### 3. Advanced usage
 ```bash
-# High quality render with multiple workers
-barchart-race render --config config.json --data sample-data.csv --quality max --parallel 4
+# Use custom configuration file
+npm run render -- sample-data.csv --config config.json
 
 # Dry run (validation only)
-barchart-race render --config config.json --data sample-data.csv --dry-run
+npm run render -- sample-data.csv --dry-run
 
-# Custom output file
-barchart-race render --config config.json --data sample-data.csv --output my-video.mp4
+# High quality render with verbose output
+npm run render -- sample-data.csv --quality max --verbose
 ```
 
 ## Configuration

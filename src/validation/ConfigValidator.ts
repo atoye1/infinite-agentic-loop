@@ -22,7 +22,7 @@ export class ConfigValidator {
       }
     }
 
-    const typedConfig = config as any
+    const typedConfig = config as BarChartRaceConfig
 
     // Validate output section
     this.validateOutput(typedConfig.output, errors)
@@ -39,7 +39,7 @@ export class ConfigValidator {
     }
   }
 
-  private validateOutput(output: any, errors: ValidationError[]): void {
+  private validateOutput(output: BarChartRaceConfig['output'] | undefined, errors: ValidationError[]): void {
     if (!output || typeof output !== 'object') {
       errors.push({ field: 'output', message: 'Output configuration is required' })
       return
@@ -105,7 +105,7 @@ export class ConfigValidator {
     }
   }
 
-  private validateData(data: any, errors: ValidationError[]): void {
+  private validateData(data: BarChartRaceConfig['data'] | undefined, errors: ValidationError[]): void {
     if (!data || typeof data !== 'object') {
       errors.push({ field: 'data', message: 'Data configuration is required' })
       return
@@ -149,7 +149,7 @@ export class ConfigValidator {
     if (!Array.isArray(data.valueColumns) || data.valueColumns.length === 0) {
       errors.push({ field: 'data.valueColumns', message: 'valueColumns must be a non-empty array' })
     } else {
-      data.valueColumns.forEach((col: any, index: number) => {
+      data.valueColumns.forEach((col: string, index: number) => {
         if (typeof col !== 'string' || col.trim() === '') {
           errors.push({ 
             field: `data.valueColumns[${index}]`, 
@@ -170,7 +170,7 @@ export class ConfigValidator {
     }
   }
 
-  private validateLayers(layers: any, errors: ValidationError[]): void {
+  private validateLayers(layers: BarChartRaceConfig['layers'] | undefined, errors: ValidationError[]): void {
     if (!layers || typeof layers !== 'object') {
       errors.push({ field: 'layers', message: 'Layers configuration is required' })
       return
@@ -206,7 +206,7 @@ export class ConfigValidator {
     }
   }
 
-  private validateBackgroundLayer(bg: any, errors: ValidationError[]): void {
+  private validateBackgroundLayer(bg: BackgroundLayerConfig | undefined, errors: ValidationError[]): void {
     if (!bg || typeof bg !== 'object') {
       errors.push({ field: 'layers.background', message: 'Background layer must be an object' })
       return
@@ -264,7 +264,7 @@ export class ConfigValidator {
     }
   }
 
-  private validateChartLayer(chart: any, errors: ValidationError[]): void {
+  private validateChartLayer(chart: ChartLayerConfig | undefined, errors: ValidationError[]): void {
     if (!chart || typeof chart !== 'object') {
       errors.push({ field: 'layers.chart', message: 'Chart layer must be an object' })
       return
@@ -335,7 +335,7 @@ export class ConfigValidator {
             value: chart.bar.colors 
           })
         } else {
-          chart.bar.colors.forEach((color: any, index: number) => {
+          chart.bar.colors.forEach((color: string, index: number) => {
             if (!this.isValidHexColor(color)) {
               errors.push({ 
                 field: `layers.chart.bar.colors[${index}]`, 
@@ -409,7 +409,7 @@ export class ConfigValidator {
     }
   }
 
-  private validateTitleLayer(title: any, errors: ValidationError[]): void {
+  private validateTitleLayer(title: TitleLayerConfig | undefined, errors: ValidationError[]): void {
     if (!title || typeof title !== 'object') {
       errors.push({ field: 'layers.title', message: 'Title layer must be an object' })
       return
@@ -443,7 +443,7 @@ export class ConfigValidator {
     this.validateTimelineConfig(title.timeline, 'layers.title.timeline', errors)
   }
 
-  private validateTextLayer(text: any, errors: ValidationError[]): void {
+  private validateTextLayer(text: TextLayerConfig | undefined, errors: ValidationError[]): void {
     if (!text || typeof text !== 'object') {
       errors.push({ field: 'layers.text', message: 'Text layer must be an object' })
       return
@@ -485,7 +485,7 @@ export class ConfigValidator {
     this.validateTimelineConfig(text.timeline, 'layers.text.timeline', errors)
   }
 
-  private validateDateLayer(date: any, errors: ValidationError[]): void {
+  private validateDateLayer(date: DateLayerConfig | undefined, errors: ValidationError[]): void {
     if (!date || typeof date !== 'object') {
       errors.push({ field: 'layers.date', message: 'Date layer must be an object' })
       return
@@ -546,7 +546,7 @@ export class ConfigValidator {
     }
   }
 
-  private validatePosition(position: any, fieldName: string, errors: ValidationError[]): void {
+  private validatePosition(position: ChartLayerConfig['position'] | undefined, fieldName: string, errors: ValidationError[]): void {
     if (!position || typeof position !== 'object') {
       errors.push({ field: fieldName, message: 'Position is required' })
       return
@@ -564,7 +564,12 @@ export class ConfigValidator {
     })
   }
 
-  private validateLabelConfig(label: any, fieldName: string, errors: ValidationError[], positionValues?: string[]): void {
+  private validateLabelConfig(
+    label: ChartLayerConfig['labels']['title'] | ChartLayerConfig['labels']['value'] | undefined, 
+    fieldName: string, 
+    errors: ValidationError[], 
+    positionValues?: string[]
+  ): void {
     if (!label || typeof label !== 'object') {
       errors.push({ field: fieldName, message: 'Label configuration is required' })
       return
@@ -598,23 +603,27 @@ export class ConfigValidator {
       })
     }
 
-    if (positionValues && label.position && !positionValues.includes(label.position)) {
-      errors.push({ 
-        field: `${fieldName}.position`, 
-        message: `position must be one of: ${positionValues.join(', ')}`,
-        value: label.position 
-      })
+    if (positionValues && 'position' in label) {
+      const titleLabel = label as ChartLayerConfig['labels']['title']
+      if (titleLabel.position && !positionValues.includes(titleLabel.position)) {
+        errors.push({ 
+          field: `${fieldName}.position`, 
+          message: `position must be one of: ${positionValues.join(', ')}`,
+          value: titleLabel.position 
+        })
+      }
     }
 
     // Additional validation for value labels
-    if (fieldName.includes('value')) {
-      if (!label.format || typeof label.format !== 'string') {
+    if (fieldName.includes('value') && 'format' in label) {
+      const valueLabel = label as ChartLayerConfig['labels']['value']
+      if (!valueLabel.format || typeof valueLabel.format !== 'string') {
         errors.push({ field: `${fieldName}.format`, message: 'format must be a non-empty string' })
       }
     }
   }
 
-  private validateRankConfig(rank: any, fieldName: string, errors: ValidationError[]): void {
+  private validateRankConfig(rank: ChartLayerConfig['labels']['rank'] | undefined, fieldName: string, errors: ValidationError[]): void {
     if (!rank || typeof rank !== 'object') {
       errors.push({ field: fieldName, message: 'Rank configuration is required' })
       return
@@ -653,7 +662,11 @@ export class ConfigValidator {
     }
   }
 
-  private validateStyleConfig(style: any, fieldName: string, errors: ValidationError[]): void {
+  private validateStyleConfig(
+    style: TitleLayerConfig['style'] | TextLayerConfig['style'] | DateLayerConfig['style'] | undefined, 
+    fieldName: string, 
+    errors: ValidationError[]
+  ): void {
     if (!style || typeof style !== 'object') {
       errors.push({ field: fieldName, message: 'Style configuration is required' })
       return
@@ -688,7 +701,11 @@ export class ConfigValidator {
     }
   }
 
-  private validateTimelineConfig(timeline: any, fieldName: string, errors: ValidationError[]): void {
+  private validateTimelineConfig(
+    timeline: TitleLayerConfig['timeline'] | TextLayerConfig['timeline'] | undefined, 
+    fieldName: string, 
+    errors: ValidationError[]
+  ): void {
     if (!timeline || typeof timeline !== 'object') {
       errors.push({ field: fieldName, message: 'Timeline configuration is required' })
       return
@@ -712,23 +729,23 @@ export class ConfigValidator {
   }
 
   // Helper validation methods
-  private isPositiveInteger(value: any): boolean {
+  private isPositiveInteger(value: unknown): boolean {
     return typeof value === 'number' && Number.isInteger(value) && value > 0
   }
 
-  private isPositiveNumber(value: any): boolean {
+  private isPositiveNumber(value: unknown): boolean {
     return typeof value === 'number' && !isNaN(value) && value > 0
   }
 
-  private isNonNegativeNumber(value: any): boolean {
+  private isNonNegativeNumber(value: unknown): boolean {
     return typeof value === 'number' && !isNaN(value) && value >= 0
   }
 
-  private isValidOpacity(value: any): boolean {
+  private isValidOpacity(value: unknown): boolean {
     return typeof value === 'number' && !isNaN(value) && value >= 0 && value <= 100
   }
 
-  private isValidHexColor(value: any): boolean {
+  private isValidHexColor(value: unknown): boolean {
     if (typeof value !== 'string') return false
     return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value)
   }

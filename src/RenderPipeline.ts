@@ -11,7 +11,7 @@ export interface RenderConfig {
   format: 'mp4' | 'webm';
   quality: 'low' | 'medium' | 'high' | 'max';
   parallel?: number;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
 }
 
 export interface RenderProgress {

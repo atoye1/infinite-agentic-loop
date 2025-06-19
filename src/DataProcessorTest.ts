@@ -4,6 +4,7 @@
 
 import { DataProcessor, ProcessingConfig } from './DataProcessor';
 import { DataUtils } from './DataUtils';
+import { random } from 'remotion';
 
 export class DataProcessorTest {
   /**
@@ -39,7 +40,7 @@ export class DataProcessorTest {
       const startTime = performance.now();
       
       try {
-        (this as any)[testName]();
+        (this as unknown as Record<string, () => void>)[testName]();
         const duration = performance.now() - startTime;
         
         return {
@@ -415,7 +416,7 @@ export class DataProcessorTest {
         interpolationMethod: 'linear',
         fps: 30
       });
-    } catch (error) {
+    } catch {
       // Expected to fail during validation
     }
 
@@ -473,7 +474,7 @@ export class DataProcessorTest {
       dateFormat: 'invalid',
       interpolationMethod: 'invalid',
       fps: -1
-    } as any;
+    } as unknown as ProcessingConfig;
 
     const invalidErrors = DataProcessor.validateConfig(invalidConfig);
     if (invalidErrors.length === 0) {
@@ -536,7 +537,7 @@ export class DataProcessorTest {
     const rows = ['Date,A,B,C,D,E'];
     for (let i = 0; i < 100; i++) {
       const date = new Date(2020, 0, i + 1).toISOString().split('T')[0];
-      const values = Array.from({ length: 5 }, () => Math.floor(Math.random() * 1000));
+      const values = Array.from({ length: 5 }, (_, j) => Math.floor(random(`${i}-${j}`) * 1000));
       rows.push(`${date},${values.join(',')}`);
     }
 

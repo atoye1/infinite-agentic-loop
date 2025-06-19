@@ -58,14 +58,14 @@ export type TimingFunction = keyof typeof EasingFunctions;
 
 // Spring Animation Presets
 export const SpringPresets: Record<string, SpringConfig> = {
-  gentle: { damping: 200, stiffness: 100, mass: 1 },
-  wobbly: { damping: 180, stiffness: 120, mass: 1 },
-  stiff: { damping: 260, stiffness: 200, mass: 1 },
-  slow: { damping: 280, stiffness: 60, mass: 1 },
-  molasses: { damping: 280, stiffness: 20, mass: 1 },
-  bouncy: { damping: 150, stiffness: 180, mass: 1 },
-  elastic: { damping: 120, stiffness: 200, mass: 1.2 },
-  snappy: { damping: 300, stiffness: 400, mass: 0.8 },
+  gentle: { damping: 200, stiffness: 100, mass: 1, overshootClamping: false },
+  wobbly: { damping: 180, stiffness: 120, mass: 1, overshootClamping: false },
+  stiff: { damping: 260, stiffness: 200, mass: 1, overshootClamping: false },
+  slow: { damping: 280, stiffness: 60, mass: 1, overshootClamping: false },
+  molasses: { damping: 280, stiffness: 20, mass: 1, overshootClamping: false },
+  bouncy: { damping: 150, stiffness: 180, mass: 1, overshootClamping: false },
+  elastic: { damping: 120, stiffness: 200, mass: 1.2, overshootClamping: false },
+  snappy: { damping: 300, stiffness: 400, mass: 0.8, overshootClamping: false },
 };
 
 // Advanced Animation Options

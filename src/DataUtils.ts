@@ -3,6 +3,7 @@
  */
 
 import { DataPoint, FrameData, ProcessingConfig } from './DataProcessor';
+import { random } from 'remotion';
 
 export class DataUtils {
   /**
@@ -66,7 +67,7 @@ export class DataUtils {
     for (let i = 1; i < Math.min(6, lines.length); i++) {
       try {
         sampleRows.push(DataUtils.parseCSVLine(lines[i]));
-      } catch (error) {
+      } catch {
         // Skip malformed rows in analysis
       }
     }
@@ -310,7 +311,7 @@ export class DataUtils {
       case 'json':
         return JSON.stringify(frameData, null, 2);
       
-      case 'csv':
+      case 'csv': {
         if (frameData.length === 0) return '';
         
         // Create CSV with frame, timestamp, category, value, rank columns
@@ -332,6 +333,7 @@ export class DataUtils {
         }
         
         return rows.join('\n');
+      }
       
       default:
         throw new Error(`Unsupported export format: ${format}`);
@@ -348,7 +350,7 @@ export class DataUtils {
     const rows = ['Date,Company A,Company B,Company C,Company D,Company E'];
     
     for (let i = 0; i < dates.length; i++) {
-      const values = categories.map(() => Math.floor(Math.random() * 1000) + 100);
+      const values = categories.map((_, index) => Math.floor(random(`${i}-${index}`) * 1000) + 100);
       rows.push(`${dates[i]},${values.join(',')}`);
     }
     

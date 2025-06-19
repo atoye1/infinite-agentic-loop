@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill } from 'remotion';
+import { AbsoluteFill, Img } from 'remotion';
 import { BackgroundLayerProps } from './types';
 
 export const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ config }) => {
@@ -11,7 +11,8 @@ export const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ config }) => {
       }}
     >
       {config.image && (
-        <div
+        <Img
+          src={config.image.path}
           style={{
             position: 'absolute',
             top: 0,
@@ -19,10 +20,8 @@ export const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ config }) => {
             width: '100%',
             height: '100%',
             opacity: config.image.opacity / 100,
-            backgroundImage: `url(${config.image.path})`,
-            backgroundSize: config.image.cropping,
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
+            objectFit: config.image.cropping === 'cover' ? 'cover' : config.image.cropping === 'contain' ? 'contain' : 'fill',
+            objectPosition: 'center',
           }}
         />
       )}

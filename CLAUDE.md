@@ -4,8 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an experimental project demonstrating the Infinite Agentic Loop pattern using Claude Code's custom slash commands. The project orchestrates multiple AI agents in parallel to generate evolving iterations of themed hybrid UI components based on specifications.
-
+This is an experimental project demonstrating the Infinite Agentic Loop pattern using Claude Code's custom slash commands. The project orchestrates multiple AI agents in parallel to generate barchart race video renderings based on a specification-driven approach. The goal is to create unique, high-quality UI components iteratively, leveraging the power of AI to explore creative possibilities.
+this app works with command line interface and inputs are datafile and configuration file. output will be a video file.
 ## Key Commands
 
 ### Running the Infinite Agentic Loop

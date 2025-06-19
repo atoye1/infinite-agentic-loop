@@ -650,7 +650,7 @@ export class PerformanceOptimizer {
    */
   private determineCachingStrategy(
     currentLoad: { cpuUsage: number; memoryUsage: number; diskUsage: number },
-    stats: any
+    stats: ReturnType<PerformanceMonitor['getStats']>
   ): string {
     if (currentLoad.diskUsage > 80) {
       return 'memory-only';
