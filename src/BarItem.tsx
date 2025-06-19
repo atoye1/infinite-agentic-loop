@@ -2,6 +2,14 @@ import React from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
 import { BarItemProps } from './types';
 import { formatValue, getItemColor, calculateItemHeight } from './utils';
+import { 
+  createAdvancedAnimation, 
+  createShakeAnimation, 
+  createPulseAnimation, 
+  interpolateColor,
+  createRevealAnimation,
+  SpringPresets 
+} from './utils/AnimationUtils';
 
 export const BarItem: React.FC<BarItemProps> = ({
   item,
@@ -10,7 +18,10 @@ export const BarItem: React.FC<BarItemProps> = ({
   maxValue,
   containerWidth,
   containerHeight,
-  totalItems
+  totalItems,
+  previousRank,
+  isNewRecord,
+  isOvertaking
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -19,35 +30,72 @@ export const BarItem: React.FC<BarItemProps> = ({
   const itemHeight = calculateItemHeight(containerHeight, config.chart.visibleItemCount, config.chart.itemSpacing);
   const barWidth = (item.value / maxValue) * containerWidth;
   
-  // Animate bar width with spring
-  const animatedWidth = spring({
-    frame,
-    fps,
-    config: {
-      damping: 200,
-      stiffness: 100,
-      mass: 1,
-    },
-    from: 0,
-    to: barWidth,
-  });
+  // Advanced bar width animation with configurable effects
+  const animationConfig = config.animations?.bar || { type: 'spring', springPreset: 'gentle' };
   
-  // Animate vertical position for rank changes
-  const yPosition = spring({
-    frame,
-    fps,
-    config: {
-      damping: 200,
-      stiffness: 100,
-      mass: 1,
-    },
-    from: index * (itemHeight + config.chart.itemSpacing),
-    to: (item.rank - 1) * (itemHeight + config.chart.itemSpacing),
-  });
+  const animatedWidth = animationConfig.type === 'spring' ? 
+    spring({
+      frame,
+      fps,
+      config: SpringPresets[animationConfig.springPreset as keyof typeof SpringPresets] || SpringPresets.gentle,
+      from: 0,
+      to: barWidth,
+    }) :
+    createAdvancedAnimation(
+      frame,
+      fps,
+      0,
+      barWidth,
+      {
+        type: 'interpolate',
+        duration: animationConfig.duration || 1,
+        easing: animationConfig.easing || 'easeOutCubic',
+        delay: index * (animationConfig.staggerDelay || 0.1)
+      }
+    );
   
-  // Get colors
+  // Advanced vertical position animation for rank changes
+  const fromY = index * (itemHeight + config.chart.itemSpacing);
+  const toY = (item.rank - 1) * (itemHeight + config.chart.itemSpacing);
+  
+  const rankAnimationConfig = config.animations?.rank || { type: 'spring', springPreset: 'bouncy' };
+  
+  const yPosition = rankAnimationConfig.type === 'spring' ?
+    spring({
+      frame,
+      fps,
+      config: SpringPresets[rankAnimationConfig.springPreset as keyof typeof SpringPresets] || SpringPresets.bouncy,
+      from: fromY,
+      to: toY,
+    }) :
+    createAdvancedAnimation(
+      frame,
+      fps,
+      fromY,
+      toY,
+      {
+        type: 'interpolate',
+        duration: rankAnimationConfig.duration || 0.8,
+        easing: rankAnimationConfig.easing || 'easeInOutElastic',
+        delay: Math.abs(previousRank - item.rank) * 0.05 // Longer distance = more delay
+      }
+    );
+  
+  // Dynamic color system with transitions
   const colors = config.bar.colors === 'auto' ? [] : config.bar.colors;
-  const barColor = getItemColor(item, colors, index);
+  const baseColor = getItemColor(item, colors, index);
+  
+  // Special color effects
+  let barColor = baseColor;
+  if (isNewRecord && config.animations?.effects?.recordHighlight) {
+    const pulseColor = '#FFD700'; // Gold for records
+    const pulseIntensity = createPulseAnimation(frame, fps, 0, 1, 3); // Fast pulse
+    barColor = interpolateColor(Math.abs(pulseIntensity), baseColor, pulseColor);
+  } else if (isOvertaking && config.animations?.effects?.overtakeHighlight) {
+    const overtakeColor = '#00FF00'; // Green for overtaking
+    const pulseIntensity = createPulseAnimation(frame, fps, 0, 0.3, 2);
+    barColor = interpolateColor(Math.abs(pulseIntensity), baseColor, overtakeColor);
+  }
   
   // Calculate label positions
   const labelPadding = 10;
@@ -57,8 +105,18 @@ export const BarItem: React.FC<BarItemProps> = ({
     ? labelPadding 
     : Math.max(animatedWidth + labelPadding, labelPadding);
   
-  // Animate opacity for smooth entry/exit
-  const opacity = interpolate(
+  // Advanced entry/exit animations
+  const entryConfig = config.animations?.entry || { effect: 'fade', duration: 0.5, delay: index * 0.1 };
+  const entryAnimation = createRevealAnimation(
+    frame,
+    fps,
+    entryConfig.effect as any,
+    entryConfig.duration,
+    entryConfig.delay
+  );
+  
+  // Base opacity with smooth entry/exit
+  const baseOpacity = interpolate(
     frame,
     [0, 10, Math.max(0, totalItems * 2 - 10), totalItems * 2],
     [0, 1, 1, 0],
@@ -68,16 +126,30 @@ export const BarItem: React.FC<BarItemProps> = ({
     }
   );
   
+  const opacity = baseOpacity * entryAnimation.opacity;
+  
+  // Shake effect for dramatic moments
+  const shakeOffset = (isNewRecord || isOvertaking) && config.animations?.effects?.shake ?
+    createShakeAnimation(frame, fps, isNewRecord ? 8 : 4, 0.5) :
+    { x: 0, y: 0 };
+  
+  // Pulse effect for highlighting
+  const pulseScale = (isNewRecord || isOvertaking) && config.animations?.effects?.pulse ?
+    createPulseAnimation(frame, fps, 1, isNewRecord ? 0.1 : 0.05, 2) :
+    1;
+  
   return (
     <div
       style={{
         position: 'absolute',
-        left: 0,
-        top: yPosition,
+        left: shakeOffset.x,
+        top: yPosition + shakeOffset.y,
         width: containerWidth,
         height: itemHeight,
         opacity: opacity,
+        transform: `${entryAnimation.transform} scale(${pulseScale})`,
         transition: config.animation.type === 'continuous' ? 'none' : 'all 0.3s ease-in-out',
+        zIndex: isNewRecord ? 100 : isOvertaking ? 50 : 1,
       }}
     >
       {/* Bar */}
@@ -88,12 +160,35 @@ export const BarItem: React.FC<BarItemProps> = ({
           top: 0,
           width: animatedWidth,
           height: itemHeight,
-          backgroundColor: barColor,
+          background: config.animations?.effects?.gradient && (isNewRecord || isOvertaking) ?
+            `linear-gradient(45deg, ${barColor}, ${barColor}88, ${barColor})` :
+            barColor,
           borderRadius: config.bar.cornerRadius,
           opacity: config.bar.opacity / 100,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          boxShadow: isNewRecord 
+            ? `0 0 20px ${barColor}, 0 4px 16px rgba(0, 0, 0, 0.2)` 
+            : isOvertaking 
+              ? `0 0 12px ${barColor}66, 0 2px 12px rgba(0, 0, 0, 0.15)` 
+              : '0 2px 8px rgba(0, 0, 0, 0.1)',
+          transition: 'box-shadow 0.3s ease-in-out',
         }}
-      />
+      >
+        {/* Shimmer effect for special moments */}
+        {(isNewRecord || isOvertaking) && config.animations?.effects?.shimmer && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: -100,
+              width: '100px',
+              height: '100%',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+              transform: `translateX(${animatedWidth + 100}px)`,
+              transition: 'transform 0.8s ease-in-out',
+            }}
+          />
+        )}
+      </div>
       
       {/* Item Image */}
       {config.images?.show && item.image && (

@@ -52,6 +52,7 @@ export interface ChartLayerConfig {
     type: 'continuous' | 'discrete';
     overtakeDuration: number; // seconds
   };
+  animations?: AdvancedAnimationsConfig;
   bar: {
     colors: string[] | 'auto'; // hex colors or auto-generate
     cornerRadius: number;
@@ -64,6 +65,7 @@ export interface ChartLayerConfig {
       fontFamily: string;
       color: string;
       position: 'inside' | 'outside';
+      animation?: TextAnimationConfig;
     };
     value: {
       show: boolean;
@@ -73,12 +75,14 @@ export interface ChartLayerConfig {
       format: string; // e.g., "{value:,.0f}", "{value:.2f}M"
       prefix?: string; // e.g., "$"
       suffix?: string; // e.g., "원"
+      animation?: TextAnimationConfig;
     };
     rank: {
       show: boolean;
       fontSize: number;
       backgroundColor: string;
       textColor: string;
+      animation?: TextAnimationConfig;
     };
   };
   images?: {
@@ -87,6 +91,7 @@ export interface ChartLayerConfig {
     size: number;
     borderRadius: number;
   };
+  particles?: ParticleSystemConfig;
 }
 
 export interface TitleLayerConfig {
@@ -200,10 +205,82 @@ export interface BarItemProps {
   containerWidth: number;
   containerHeight: number;
   totalItems: number;
+  previousRank?: number;
+  isNewRecord?: boolean;
+  isOvertaking?: boolean;
 }
 
 export interface BackgroundLayerProps {
   config: BackgroundLayerConfig;
+}
+
+// Advanced Animation Configuration Types
+export interface AdvancedAnimationsConfig {
+  bar?: {
+    type: 'spring' | 'interpolate';
+    springPreset?: string;
+    duration?: number;
+    easing?: string;
+    staggerDelay?: number;
+  };
+  rank?: {
+    type: 'spring' | 'interpolate';
+    springPreset?: string;
+    duration?: number;
+    easing?: string;
+  };
+  entry?: {
+    effect: 'fade' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'zoom' | 'flip';
+    duration: number;
+    delay: number;
+  };
+  effects?: {
+    shake?: boolean;
+    pulse?: boolean;
+    shimmer?: boolean;
+    gradient?: boolean;
+    recordHighlight?: boolean;
+    overtakeHighlight?: boolean;
+  };
+}
+
+export interface TextAnimationConfig {
+  type: 'typewriter' | 'reveal' | 'glow' | 'bounce' | 'none';
+  duration?: number;
+  delay?: number;
+  effect?: 'fade' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'zoom';
+}
+
+export interface ParticleSystemConfig {
+  enabled: boolean;
+  maxParticles: number;
+  emissionRate: number;
+  lifespan: number;
+  size: { min: number; max: number };
+  speed: { min: number; max: number };
+  colors: string[];
+  shapes: ('circle' | 'square' | 'star' | 'heart' | 'sparkle')[];
+  gravity: number;
+  wind: number;
+  fadeOut: boolean;
+  trail: boolean;
+  blendMode: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light';
+}
+
+export interface CelebrationEffect {
+  type: 'confetti' | 'fireworks' | 'sparkles' | 'burst';
+  intensity: number;
+  duration: number;
+  colors: string[];
+  position: { x: number; y: number };
+}
+
+export interface MilestoneConfig {
+  enabled: boolean;
+  thresholds: number[];
+  effects: CelebrationEffect[];
+  particles: ParticleSystemConfig;
+  soundEffects?: boolean;
 }
 
 export interface TitleLayerProps {
