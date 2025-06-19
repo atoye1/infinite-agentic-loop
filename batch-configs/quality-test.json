@@ -1,0 +1,47 @@
+{
+  "name": "Quality Comparison Test",
+  "description": "Compare all quality levels for HelloWorld composition",
+  "outputDirectory": "./output/quality-test",
+  "renders": [
+    {
+      "compositionId": "HelloWorld",
+      "outputPath": "./output/quality-test/HelloWorld_low.mp4",
+      "format": "mp4",
+      "quality": "low",
+      "props": {
+        "titleText": "Low Quality Test",
+        "titleColor": "#FF6B6B"
+      }
+    },
+    {
+      "compositionId": "HelloWorld",
+      "outputPath": "./output/quality-test/HelloWorld_medium.mp4",
+      "format": "mp4",
+      "quality": "medium",
+      "props": {
+        "titleText": "Medium Quality Test",
+        "titleColor": "#4ECDC4"
+      }
+    },
+    {
+      "compositionId": "HelloWorld",
+      "outputPath": "./output/quality-test/HelloWorld_high.mp4",
+      "format": "mp4",
+      "quality": "high",
+      "props": {
+        "titleText": "High Quality Test",
+        "titleColor": "#45B7D1"
+      }
+    },
+    {
+      "compositionId": "HelloWorld",
+      "outputPath": "./output/quality-test/HelloWorld_max.mp4",
+      "format": "mp4",
+      "quality": "max",
+      "props": {
+        "titleText": "Max Quality Test",
+        "titleColor": "#8E44AD"
+      }
+    }
+  ]
+}

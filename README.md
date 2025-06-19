@@ -1,72 +1,57 @@
-# Infinite Agentic Loop POC
+# Bar Chart Race Project
 
-> **Watch the Tutorial**: [Infinite Agentic Loop with Claude Code](https://youtu.be/9ipM_vDwflI)
+This project was generated using the barchart-race CLI tool.
 
-An experimental project demonstrating Infinite Agentic Loop in a two prompt system using Claude Code.
+## Files
 
-<img src="images/infinite-claude-img.png" alt="Infinite Agentic Loop" style="max-width: 800px; width: 100%;">
-
-## Overview
-
-This project uses a custom Claude Code slash command (`/project:infinite`) to orchestrate multiple AI agents in parallel, generating evolving iterations of content based on specifications.
+- `config.json` - Configuration file defining video output settings, data mapping, and visual styling
+- `sample-data.csv` - Sample CSV data file with time series data
+- `README.md` - This file
 
 ## Usage
 
-Read `.claude/settings.json` to see the permissions and commands allowed.
-
-Start Claude Code: `claude`
-
-Type slash command `/project:infinite` to start the infinite agentic loop.
-
-The infinite command takes three arguments:
-```
-/project:infinite <spec_file> <output_dir> <count>
-```
-
-### 4 Command Variants
-
-#### 1. Single Generation
+### 1. Validate your configuration and data
 ```bash
-/project:infinite specs/invent_new_ui_v3.md src 1
+barchart-race validate --config config.json --data sample-data.csv --verbose
 ```
-Generate one new iteration using the UI specification.
 
-#### 2. Small Batch (5 iterations)
+### 2. Render your video
 ```bash
-/project:infinite specs/invent_new_ui_v3.md src_new 5
+barchart-race render --config config.json --data sample-data.csv --verbose
 ```
-Deploy 5 parallel agents to generate 5 unique iterations simultaneously.
 
-#### 3. Large Batch (20 iterations)  
+### 3. Advanced options
 ```bash
-/project:infinite specs/invent_new_ui_v3.md src_new 20
-```
-Generate 20 iterations in coordinated batches of 5 agents for optimal resource management.
+# High quality render with multiple workers
+barchart-race render --config config.json --data sample-data.csv --quality max --parallel 4
 
-#### 4. Infinite Mode
+# Dry run (validation only)
+barchart-race render --config config.json --data sample-data.csv --dry-run
+
+# Custom output file
+barchart-race render --config config.json --data sample-data.csv --output my-video.mp4
+```
+
+## Configuration
+
+Edit `config.json` to customize:
+- Video dimensions, duration, and quality
+- Data column mapping and interpolation
+- Visual styling (colors, fonts, positioning)
+- Animation settings
+
+## Data Format
+
+Your CSV file should have:
+- A date column (format specified in config)
+- One or more value columns for the entities to visualize
+- Consistent data structure across all rows
+
+## Need Help?
+
+Run any command with `--help` for detailed options:
 ```bash
-/project:infinite specs/invent_new_ui_v3.md infinite_src_new/ infinite
+barchart-race --help
+barchart-race render --help
+barchart-race validate --help
 ```
-Continuous generation in waves until context limits are reached, with progressive sophistication.
-
-## How It Works
-
-1. **Specification Analysis**: Reads and understands the spec file requirements
-2. **Directory Reconnaissance**: Analyzes existing iterations to determine starting point
-3. **Parallel Coordination**: Deploys Sub Agents with unique creative directions
-4. **Quality Assurance**: Ensures each iteration is unique and spec-compliant
-5. **Wave Management**: For infinite mode, manages successive waves of agents
-
-## Directions you can take to enhance this pattern
-
-- Apply this to a use case of your choice.
-- Build an MCP Server that enables reuse of the infinite agentic loop.
-- Get the `.claude/commands/infinite.md` into your `~/.claude/commands/` directory for global use.
-- Update `.claude/commands/infinite.md` to generate sets of files instead of a single file.
-
-## Master AI Coding 
-Learn to code with AI with foundational [Principles of AI Coding](https://agenticengineer.com/principled-ai-coding?y=infageloop)
-
-Follow the [IndyDevDan youtube channel](https://www.youtube.com/@indydevdan) for more AI coding tips and tricks.
-
-Use the best Agentic Coding tool: [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)

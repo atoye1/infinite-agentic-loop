@@ -1,0 +1,44 @@
+{
+  "name": "Production Render",
+  "description": "High quality production renders in multiple formats",
+  "outputDirectory": "./output/production",
+  "renders": [
+    {
+      "compositionId": "HelloWorld",
+      "outputPath": "./output/production/HelloWorld_final.mp4",
+      "format": "mp4",
+      "quality": "high",
+      "parallel": 4,
+      "props": {
+        "titleText": "Bar Chart Race - Production",
+        "titleColor": "#2C3E50",
+        "logoColor1": "#3498DB",
+        "logoColor2": "#E74C3C"
+      }
+    },
+    {
+      "compositionId": "HelloWorld",
+      "outputPath": "./output/production/HelloWorld_final.webm",
+      "format": "webm",
+      "quality": "high",
+      "parallel": 4,
+      "props": {
+        "titleText": "Bar Chart Race - Production",
+        "titleColor": "#2C3E50",
+        "logoColor1": "#3498DB",
+        "logoColor2": "#E74C3C"
+      }
+    },
+    {
+      "compositionId": "OnlyLogo",
+      "outputPath": "./output/production/Logo_final.mp4",
+      "format": "mp4",
+      "quality": "high",
+      "parallel": 4,
+      "props": {
+        "logoColor1": "#FF6B6B",
+        "logoColor2": "#4ECDC4"
+      }
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "output": {
+    "filename": "output.mp4",
+    "format": "mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration": 30,
+    "quality": "high"
+  },
+  "data": {
+    "csvPath": "./sample-data.csv",
+    "dateColumn": "Date",
+    "dateFormat": "YYYY-MM",
+    "valueColumns": [
+      "YouTube",
+      "Netflix",
+      "Disney+",
+      "HBO Max"
+    ],
+    "interpolation": "smooth"
+  },
+  "layers": {
+    "background": {
+      "color": "#1a1a1a",
+      "opacity": 100
+    },
+    "chart": {
+      "position": {
+        "top": 150,
+        "right": 50,
+        "bottom": 100,
+        "left": 50
+      },
+      "chart": {
+        "visibleItemCount": 10,
+        "maxValue": "local",
+        "itemSpacing": 20
+      },
+      "animation": {
+        "type": "continuous",
+        "overtakeDuration": 0.5
+      },
+      "bar": {
+        "colors": "auto",
+        "cornerRadius": 10,
+        "opacity": 100
+      },
+      "labels": {
+        "title": {
+          "show": true,
+          "fontSize": 24,
+          "fontFamily": "Arial",
+          "color": "#ffffff",
+          "position": "outside"
+        },
+        "value": {
+          "show": true,
+          "fontSize": 20,
+          "fontFamily": "Arial",
+          "color": "#ffffff",
+          "format": "{value:,.0f}",
+          "suffix": " subscribers"
+        },
+        "rank": {
+          "show": true,
+          "fontSize": 18,
+          "backgroundColor": "#333333",
+          "textColor": "#ffffff"
+        }
+      }
+    },
+    "title": {
+      "text": "Top Streaming Platforms 2020-2024",
+      "position": {
+        "top": 50,
+        "align": "center"
+      },
+      "style": {
+        "fontSize": 48,
+        "fontFamily": "Arial",
+        "color": "#ffffff",
+        "opacity": 100
+      },
+      "timeline": {
+        "startTime": 0,
+        "duration": 30
+      }
+    },
+    "date": {
+      "position": {
+        "bottom": 50,
+        "right": 50
+      },
+      "format": {
+        "pattern": "MMMM YYYY",
+        "locale": "en-US"
+      },
+      "style": {
+        "fontSize": 36,
+        "fontFamily": "Arial",
+        "color": "#ffffff",
+        "opacity": 80
+      },
+      "animation": {
+        "type": "continuous",
+        "duration": 0.3
+      }
+    }
+  }
+}
