@@ -1,14 +1,12 @@
 import "./index.css";
 import React from "react";
 import { Composition } from "remotion";
-import {
-  BarChartRaceComposition,
-  barChartRaceSchema,
-} from "./BarChartRaceComposition";
+import { BarChartRaceComposition, barChartRaceSchema } from "./BarChartRace";
 import { BuildTimeDataLoader } from "./dataprocessor/BuildTimeDataLoader";
 
 // Dynamic Compositions Hook
 const useDynamicCompositions = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [compositions, setCompositions] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -225,6 +223,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           key={comp.id}
           id={comp.id}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           component={BarChartRaceComposition as any}
           durationInFrames={comp.durationInFrames}
           fps={comp.fps}

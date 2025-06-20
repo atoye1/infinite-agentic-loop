@@ -2,6 +2,258 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 2422:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BuildTimeDataLoader: () => (/* binding */ BuildTimeDataLoader)
+/* harmony export */ });
+
+let csvManifest = null;
+async function loadCSVManifest() {
+  if (csvManifest === null) {
+    try {
+      csvManifest = await __webpack_require__.e(/* import() */ 505).then(__webpack_require__.t.bind(__webpack_require__, 4505, 19)).then((m) => m.default);
+    } catch {
+      try {
+        const response = await fetch("/src/generated/csv-manifest.json");
+        csvManifest = await response.json();
+      } catch {
+        csvManifest = { csvFiles: [], totalFiles: 0, validFiles: 0, errors: [] };
+      }
+    }
+  }
+  return csvManifest;
+}
+class BuildTimeDataLoader {
+  /**
+   * Load CSV metadata from pre-generated manifest
+   * This replaces the file system scanning with build-time data
+   */
+  async scanCSVFiles() {
+    const manifest = await loadCSVManifest();
+    return {
+      csvFiles: manifest.csvFiles,
+      totalFiles: manifest.totalFiles,
+      validFiles: manifest.validFiles,
+      errors: manifest.errors
+    };
+  }
+  /**
+   * Load CSV content from embedded data or via fetch
+   */
+  async loadCSVContent(filepath) {
+    const manifest = await loadCSVManifest();
+    const csvMetadata = manifest.csvFiles.find(
+      (csv) => csv.filepath === filepath
+    );
+    if (csvMetadata && csvMetadata.content) {
+      return csvMetadata.content;
+    }
+    try {
+      const response = await fetch(filepath);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
+      }
+      return await response.text();
+    } catch (error) {
+      throw new Error(`Could not load CSV from ${filepath}: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
+  }
+  /**
+   * Infer template type from filename
+   */
+  getTemplateTypeFromFilename(filename) {
+    const name = filename.toLowerCase();
+    if (name.includes("social") || name.includes("instagram") || name.includes("tiktok")) {
+      return "social";
+    }
+    if (name.includes("business") || name.includes("sales") || name.includes("revenue")) {
+      return "business";
+    }
+    if (name.includes("sports") || name.includes("game") || name.includes("competition")) {
+      return "sports";
+    }
+    if (name.includes("education") || name.includes("school") || name.includes("university")) {
+      return "educational";
+    }
+    if (name.includes("test") || name.includes("sample") || name.includes("demo")) {
+      return "demo";
+    }
+    if (name.includes("dramatic") || name.includes("extreme")) {
+      return "gaming";
+    }
+    return "default";
+  }
+  /**
+   * Get all available CSV files
+   */
+  async getAvailableFiles() {
+    const manifest = await loadCSVManifest();
+    return manifest.csvFiles;
+  }
+  /**
+   * Get CSV metadata by filename
+   */
+  async getCSVMetadata(filename) {
+    const manifest = await loadCSVManifest();
+    return manifest.csvFiles.find((csv) => csv.filename === filename);
+  }
+  /**
+   * Check if manifest was generated successfully
+   */
+  async isManifestValid() {
+    const manifest = await loadCSVManifest();
+    return manifest.validFiles > 0;
+  }
+  /**
+   * Get manifest generation timestamp
+   */
+  async getManifestTimestamp() {
+    const manifest = await loadCSVManifest();
+    return new Date(manifest.generated);
+  }
+}
+
+
+/***/ }),
+
+/***/ 8972:
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4991);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "/*! tailwindcss v4.1.1 | MIT License | https://tailwindcss.com */\n@layer theme, base, components, utilities;\n@supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {\n  @layer base {\n    *, ::before, ::after, ::backdrop {\n      --tw-rotate-x: rotateX(0);\n      --tw-rotate-y: rotateY(0);\n      --tw-rotate-z: rotateZ(0);\n      --tw-skew-x: skewX(0);\n      --tw-skew-y: skewY(0);\n      --tw-border-style: solid;\n      --tw-ordinal: initial;\n      --tw-slashed-zero: initial;\n      --tw-numeric-figure: initial;\n      --tw-numeric-spacing: initial;\n      --tw-numeric-fraction: initial;\n      --tw-shadow: 0 0 #0000;\n      --tw-shadow-color: initial;\n      --tw-shadow-alpha: 100%;\n      --tw-inset-shadow: 0 0 #0000;\n      --tw-inset-shadow-color: initial;\n      --tw-inset-shadow-alpha: 100%;\n      --tw-ring-color: initial;\n      --tw-ring-shadow: 0 0 #0000;\n      --tw-inset-ring-color: initial;\n      --tw-inset-ring-shadow: 0 0 #0000;\n      --tw-ring-inset: initial;\n      --tw-ring-offset-width: 0px;\n      --tw-ring-offset-color: #fff;\n      --tw-ring-offset-shadow: 0 0 #0000;\n      --tw-blur: initial;\n      --tw-brightness: initial;\n      --tw-contrast: initial;\n      --tw-grayscale: initial;\n      --tw-hue-rotate: initial;\n      --tw-invert: initial;\n      --tw-opacity: initial;\n      --tw-saturate: initial;\n      --tw-sepia: initial;\n      --tw-drop-shadow: initial;\n      --tw-drop-shadow-color: initial;\n      --tw-drop-shadow-alpha: 100%;\n      --tw-drop-shadow-size: initial;\n      --tw-ease: initial;\n    }\n  }\n}\n@layer theme {\n  :root, :host {\n    --font-sans: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\",\n      \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,\n      \"Liberation Mono\", \"Courier New\", monospace;\n    --ease-in: cubic-bezier(0.4, 0, 1, 1);\n    --ease-out: cubic-bezier(0, 0, 0.2, 1);\n    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);\n    --default-transition-duration: 150ms;\n    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n    --default-font-family: var(--font-sans);\n    --default-font-feature-settings: var(--font-sans--font-feature-settings);\n    --default-font-variation-settings: var(\n      --font-sans--font-variation-settings\n    );\n    --default-mono-font-family: var(--font-mono);\n    --default-mono-font-feature-settings: var(\n      --font-mono--font-feature-settings\n    );\n    --default-mono-font-variation-settings: var(\n      --font-mono--font-variation-settings\n    );\n  }\n}\n@layer base {\n  *, ::after, ::before, ::backdrop, ::file-selector-button {\n    box-sizing: border-box;\n    margin: 0;\n    padding: 0;\n    border: 0 solid;\n  }\n  html, :host {\n    line-height: 1.5;\n    -webkit-text-size-adjust: 100%;\n    tab-size: 4;\n    font-family: var( --default-font-family, ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\" );\n    font-feature-settings: var(--default-font-feature-settings, normal);\n    font-variation-settings: var( --default-font-variation-settings, normal );\n    -webkit-tap-highlight-color: transparent;\n  }\n  body {\n    line-height: inherit;\n  }\n  hr {\n    height: 0;\n    color: inherit;\n    border-top-width: 1px;\n  }\n  abbr:where([title]) {\n    -webkit-text-decoration: underline dotted;\n    text-decoration: underline dotted;\n  }\n  h1, h2, h3, h4, h5, h6 {\n    font-size: inherit;\n    font-weight: inherit;\n  }\n  a {\n    color: inherit;\n    -webkit-text-decoration: inherit;\n    text-decoration: inherit;\n  }\n  b, strong {\n    font-weight: bolder;\n  }\n  code, kbd, samp, pre {\n    font-family: var( --default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace );\n    font-feature-settings: var( --default-mono-font-feature-settings, normal );\n    font-variation-settings: var( --default-mono-font-variation-settings, normal );\n    font-size: 1em;\n  }\n  small {\n    font-size: 80%;\n  }\n  sub, sup {\n    font-size: 75%;\n    line-height: 0;\n    position: relative;\n    vertical-align: baseline;\n  }\n  sub {\n    bottom: -0.25em;\n  }\n  sup {\n    top: -0.5em;\n  }\n  table {\n    text-indent: 0;\n    border-color: inherit;\n    border-collapse: collapse;\n  }\n  :-moz-focusring {\n    outline: auto;\n  }\n  progress {\n    vertical-align: baseline;\n  }\n  summary {\n    display: list-item;\n  }\n  ol, ul, menu {\n    list-style: none;\n  }\n  img, svg, video, canvas, audio, iframe, embed, object {\n    display: block;\n    vertical-align: middle;\n  }\n  img, video {\n    max-width: 100%;\n    height: auto;\n  }\n  button, input, select, optgroup, textarea, ::file-selector-button {\n    font: inherit;\n    font-feature-settings: inherit;\n    font-variation-settings: inherit;\n    letter-spacing: inherit;\n    color: inherit;\n    border-radius: 0;\n    background-color: transparent;\n    opacity: 1;\n  }\n  :where(select:is([multiple], [size])) optgroup {\n    font-weight: bolder;\n  }\n  :where(select:is([multiple], [size])) optgroup option {\n    padding-inline-start: 20px;\n  }\n  ::file-selector-button {\n    margin-inline-end: 4px;\n  }\n  ::placeholder {\n    opacity: 1;\n    color: color-mix(in oklab, currentColor 50%, transparent);\n  }\n  textarea {\n    resize: vertical;\n  }\n  ::-webkit-search-decoration {\n    -webkit-appearance: none;\n  }\n  ::-webkit-date-and-time-value {\n    min-height: 1lh;\n    text-align: inherit;\n  }\n  ::-webkit-datetime-edit {\n    display: inline-flex;\n  }\n  ::-webkit-datetime-edit-fields-wrapper {\n    padding: 0;\n  }\n  ::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field, ::-webkit-datetime-edit-second-field, ::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-meridiem-field {\n    padding-block: 0;\n  }\n  :-moz-ui-invalid {\n    box-shadow: none;\n  }\n  button, input:where([type=\"button\"], [type=\"reset\"], [type=\"submit\"]), ::file-selector-button {\n    appearance: button;\n  }\n  ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {\n    height: auto;\n  }\n  [hidden]:where(:not([hidden=\"until-found\"])) {\n    display: none !important;\n  }\n}\n@layer utilities {\n  .visible {\n    visibility: visible;\n  }\n  .absolute {\n    position: absolute;\n  }\n  .fixed {\n    position: fixed;\n  }\n  .relative {\n    position: relative;\n  }\n  .static {\n    position: static;\n  }\n  .container {\n    width: 100%;\n    @media (width >= 40rem) {\n      max-width: 40rem;\n    }\n    @media (width >= 48rem) {\n      max-width: 48rem;\n    }\n    @media (width >= 64rem) {\n      max-width: 64rem;\n    }\n    @media (width >= 80rem) {\n      max-width: 80rem;\n    }\n    @media (width >= 96rem) {\n      max-width: 96rem;\n    }\n  }\n  .block {\n    display: block;\n  }\n  .contents {\n    display: contents;\n  }\n  .flex {\n    display: flex;\n  }\n  .grid {\n    display: grid;\n  }\n  .hidden {\n    display: none;\n  }\n  .inline-block {\n    display: inline-block;\n  }\n  .table {\n    display: table;\n  }\n  .transform {\n    transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y);\n  }\n  .resize {\n    resize: both;\n  }\n  .truncate {\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n  }\n  .rounded {\n    border-radius: 0.25rem;\n  }\n  .border {\n    border-style: var(--tw-border-style);\n    border-width: 1px;\n  }\n  .italic {\n    font-style: italic;\n  }\n  .ordinal {\n    --tw-ordinal: ordinal;\n    font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);\n  }\n  .shadow {\n    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));\n    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);\n  }\n  .ring {\n    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor);\n    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);\n  }\n  .blur {\n    --tw-blur: blur(8px);\n    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);\n  }\n  .filter {\n    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);\n  }\n  .transition {\n    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter;\n    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));\n    transition-duration: var(--tw-duration, var(--default-transition-duration));\n  }\n  .ease-in {\n    --tw-ease: var(--ease-in);\n    transition-timing-function: var(--ease-in);\n  }\n  .ease-in-out {\n    --tw-ease: var(--ease-in-out);\n    transition-timing-function: var(--ease-in-out);\n  }\n  .ease-out {\n    --tw-ease: var(--ease-out);\n    transition-timing-function: var(--ease-out);\n  }\n}\n@property --tw-rotate-x {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: rotateX(0);\n}\n@property --tw-rotate-y {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: rotateY(0);\n}\n@property --tw-rotate-z {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: rotateZ(0);\n}\n@property --tw-skew-x {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: skewX(0);\n}\n@property --tw-skew-y {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: skewY(0);\n}\n@property --tw-border-style {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: solid;\n}\n@property --tw-ordinal {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-slashed-zero {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-numeric-figure {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-numeric-spacing {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-numeric-fraction {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-shadow {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: 0 0 #0000;\n}\n@property --tw-shadow-color {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-shadow-alpha {\n  syntax: \"<percentage>\";\n  inherits: false;\n  initial-value: 100%;\n}\n@property --tw-inset-shadow {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: 0 0 #0000;\n}\n@property --tw-inset-shadow-color {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-inset-shadow-alpha {\n  syntax: \"<percentage>\";\n  inherits: false;\n  initial-value: 100%;\n}\n@property --tw-ring-color {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-ring-shadow {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: 0 0 #0000;\n}\n@property --tw-inset-ring-color {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-inset-ring-shadow {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: 0 0 #0000;\n}\n@property --tw-ring-inset {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-ring-offset-width {\n  syntax: \"<length>\";\n  inherits: false;\n  initial-value: 0px;\n}\n@property --tw-ring-offset-color {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: #fff;\n}\n@property --tw-ring-offset-shadow {\n  syntax: \"*\";\n  inherits: false;\n  initial-value: 0 0 #0000;\n}\n@property --tw-blur {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-brightness {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-contrast {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-grayscale {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-hue-rotate {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-invert {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-opacity {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-saturate {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-sepia {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-drop-shadow {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-drop-shadow-color {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-drop-shadow-alpha {\n  syntax: \"<percentage>\";\n  inherits: false;\n  initial-value: 100%;\n}\n@property --tw-drop-shadow-size {\n  syntax: \"*\";\n  inherits: false;\n}\n@property --tw-ease {\n  syntax: \"*\";\n  inherits: false;\n}\n", "",{"version":3,"sources":["webpack://./src/index.css"],"names":[],"mappings":"AAAA,gEACA;AADA,yCACA;AADA;EAAA;IAAA;MAAA,yBACA;MADA,yBACA;MADA,yBACA;MADA,qBACA;MADA,qBACA;MADA,wBACA;MADA,qBACA;MADA,0BACA;MADA,4BACA;MADA,6BACA;MADA,8BACA;MADA,sBACA;MADA,0BACA;MADA,uBACA;MADA,4BACA;MADA,gCACA;MADA,6BACA;MADA,wBACA;MADA,2BACA;MADA,8BACA;MADA,iCACA;MADA,wBACA;MADA,2BACA;MADA,4BACA;MADA,kCACA;MADA,kBACA;MADA,wBACA;MADA,sBACA;MADA,uBACA;MADA,wBACA;MADA,oBACA;MADA,qBACA;MADA,sBACA;MADA,mBACA;MADA,yBACA;MADA,+BACA;MADA,4BACA;MADA,8BACA;MADA,kBACA;IAAA;EAAA;AAAA;AADA;EAAA;IAAA;6DACA;IADA;iDACA;IADA,qCACA;IADA,sCACA;IADA,2CACA;IADA,oCACA;IADA,kEACA;IADA,uCACA;IADA,wEACA;IADA;;KACA;IADA,4CACA;IADA;;KACA;IADA;;KACA;EAAA;AAAA;AADA;EAAA;IAAA,sBACA;IADA,SACA;IADA,UACA;IADA,eACA;EAAA;EADA;IAAA,gBACA;IADA,8BACA;IADA,WACA;IADA,6JACA;IADA,mEACA;IADA,yEACA;IADA,wCACA;EAAA;EADA;IAAA,oBACA;EAAA;EADA;IAAA,SACA;IADA,cACA;IADA,qBACA;EAAA;EADA;IAAA,yCACA;IADA,iCACA;EAAA;EADA;IAAA,kBACA;IADA,oBACA;EAAA;EADA;IAAA,cACA;IADA,gCACA;IADA,wBACA;EAAA;EADA;IAAA,mBACA;EAAA;EADA;IAAA,kJACA;IADA,0EACA;IADA,8EACA;IADA,cACA;EAAA;EADA;IAAA,cACA;EAAA;EADA;IAAA,cACA;IADA,cACA;IADA,kBACA;IADA,wBACA;EAAA;EADA;IAAA,eACA;EAAA;EADA;IAAA,WACA;EAAA;EADA;IAAA,cACA;IADA,qBACA;IADA,yBACA;EAAA;EADA;IAAA,aACA;EAAA;EADA;IAAA,wBACA;EAAA;EADA;IAAA,kBACA;EAAA;EADA;IAAA,gBACA;EAAA;EADA;IAAA,cACA;IADA,sBACA;EAAA;EADA;IAAA,eACA;IADA,YACA;EAAA;EADA;IAAA,aACA;IADA,8BACA;IADA,gCACA;IADA,uBACA;IADA,cACA;IADA,gBACA;IADA,6BACA;IADA,UACA;EAAA;EADA;IAAA,mBACA;EAAA;EADA;IAAA,0BACA;EAAA;EADA;IAAA,sBACA;EAAA;EADA;IAAA,UACA;IADA,yDACA;EAAA;EADA;IAAA,gBACA;EAAA;EADA;IAAA,wBACA;EAAA;EADA;IAAA,eACA;IADA,mBACA;EAAA;EADA;IAAA,oBACA;EAAA;EADA;IAAA,UACA;EAAA;EADA;IAAA,gBACA;EAAA;EADA;IAAA,gBACA;EAAA;EADA;IAAA,kBACA;EAAA;EADA;IAAA,YACA;EAAA;EADA;IAAA,wBACA;EAAA;AAAA;AADA;EAAA;IAAA,mBACA;EAAA;EADA;IAAA,kBACA;EAAA;EADA;IAAA,eACA;EAAA;EADA;IAAA,kBACA;EAAA;EADA;IAAA,gBACA;EAAA;EADA;IAAA,WACA;IADA;MAAA,gBACA;IAAA;IADA;MAAA,gBACA;IAAA;IADA;MAAA,gBACA;IAAA;IADA;MAAA,gBACA;IAAA;IADA;MAAA,gBACA;IAAA;EAAA;EADA;IAAA,cACA;EAAA;EADA;IAAA,iBACA;EAAA;EADA;IAAA,aACA;EAAA;EADA;IAAA,aACA;EAAA;EADA;IAAA,aACA;EAAA;EADA;IAAA,qBACA;EAAA;EADA;IAAA,cACA;EAAA;EADA;IAAA,qGACA;EAAA;EADA;IAAA,YACA;EAAA;EADA;IAAA,gBACA;IADA,uBACA;IADA,mBACA;EAAA;EADA;IAAA,sBACA;EAAA;EADA;IAAA,oCACA;IADA,iBACA;EAAA;EADA;IAAA,kBACA;EAAA;EADA;IAAA,qBACA;IADA,iJACA;EAAA;EADA;IAAA,0HACA;IADA,sIACA;EAAA;EADA;IAAA,wHACA;IADA,sIACA;EAAA;EADA;IAAA,oBACA;IADA,0LACA;EAAA;EADA;IAAA,0LACA;EAAA;EADA;IAAA,mRACA;IADA,qFACA;IADA,2EACA;EAAA;EADA;IAAA,yBACA;IADA,0CACA;EAAA;EADA;IAAA,6BACA;IADA,8CACA;EAAA;EADA;IAAA,0BACA;IADA,2CACA;EAAA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,yBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,yBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,yBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,uBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,uBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,oBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,wBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,sBACA;EADA,eACA;EADA,mBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,wBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,sBACA;EADA,eACA;EADA,mBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,wBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,wBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,kBACA;EADA,eACA;EADA,kBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,mBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;EADA,wBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,sBACA;EADA,eACA;EADA,mBACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA;AADA;EAAA,WACA;EADA,eACA;AAAA","sourcesContent":["@import \"tailwindcss\";\n"],"sourceRoot":""}]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ 6314:
+/***/ ((module) => {
+
+
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+// eslint-disable-next-line func-names
+module.exports = function (cssWithMappingToString) {
+  var list = []; // return the list of modules as css string
+
+  list.toString = function toString() {
+    return this.map(function (item) {
+      var content = cssWithMappingToString(item);
+
+      if (item[2]) {
+        return "@media ".concat(item[2], " {").concat(content, "}");
+      }
+
+      return content;
+    }).join("");
+  }; // import a list of modules into the list
+  // eslint-disable-next-line func-names
+
+
+  list.i = function (modules, mediaQuery, dedupe) {
+    if (typeof modules === "string") {
+      // eslint-disable-next-line no-param-reassign
+      modules = [[null, modules, ""]];
+    }
+
+    var alreadyImportedModules = {};
+
+    if (dedupe) {
+      for (var i = 0; i < this.length; i++) {
+        // eslint-disable-next-line prefer-destructuring
+        var id = this[i][0];
+
+        if (id != null) {
+          alreadyImportedModules[id] = true;
+        }
+      }
+    }
+
+    for (var _i = 0; _i < modules.length; _i++) {
+      var item = [].concat(modules[_i]);
+
+      if (dedupe && alreadyImportedModules[item[0]]) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+
+      if (mediaQuery) {
+        if (!item[2]) {
+          item[2] = mediaQuery;
+        } else {
+          item[2] = "".concat(mediaQuery, " and ").concat(item[2]);
+        }
+      }
+
+      list.push(item);
+    }
+  };
+
+  return list;
+};
+
+/***/ }),
+
+/***/ 4991:
+/***/ ((module) => {
+
+
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]); if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+module.exports = function cssWithMappingToString(item) {
+  var _item = _slicedToArray(item, 4),
+      content = _item[1],
+      cssMapping = _item[3];
+
+  if (!cssMapping) {
+    return content;
+  }
+
+  if (typeof btoa === "function") {
+    // eslint-disable-next-line no-undef
+    var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(cssMapping))));
+    var data = "sourceMappingURL=data:application/json;charset=utf-8;base64,".concat(base64);
+    var sourceMapping = "/*# ".concat(data, " */");
+    var sourceURLs = cssMapping.sources.map(function (source) {
+      return "/*# sourceURL=".concat(cssMapping.sourceRoot || "").concat(source, " */");
+    });
+    return [content].concat(sourceURLs).concat([sourceMapping]).join("\n");
+  }
+
+  return [content].join("\n");
+};
+
+/***/ }),
+
 /***/ 1247:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
@@ -16445,6 +16697,255 @@ if (true) {
 
 /***/ }),
 
+/***/ 5072:
+/***/ ((module) => {
+
+
+
+var stylesInDOM = [];
+function getIndexByIdentifier(identifier) {
+  var result = -1;
+  for (var i = 0; i < stylesInDOM.length; i++) {
+    if (stylesInDOM[i].identifier === identifier) {
+      result = i;
+      break;
+    }
+  }
+  return result;
+}
+function modulesToDom(list, options) {
+  var idCountMap = {};
+  var identifiers = [];
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i];
+    var id = options.base ? item[0] + options.base : item[0];
+    var count = idCountMap[id] || 0;
+    var identifier = "".concat(id, " ").concat(count);
+    idCountMap[id] = count + 1;
+    var indexByIdentifier = getIndexByIdentifier(identifier);
+    var obj = {
+      css: item[1],
+      media: item[2],
+      sourceMap: item[3],
+      supports: item[4],
+      layer: item[5]
+    };
+    if (indexByIdentifier !== -1) {
+      stylesInDOM[indexByIdentifier].references++;
+      stylesInDOM[indexByIdentifier].updater(obj);
+    } else {
+      var updater = addElementStyle(obj, options);
+      options.byIndex = i;
+      stylesInDOM.splice(i, 0, {
+        identifier: identifier,
+        updater: updater,
+        references: 1
+      });
+    }
+    identifiers.push(identifier);
+  }
+  return identifiers;
+}
+function addElementStyle(obj, options) {
+  var api = options.domAPI(options);
+  api.update(obj);
+  var updater = function updater(newObj) {
+    if (newObj) {
+      if (newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap && newObj.supports === obj.supports && newObj.layer === obj.layer) {
+        return;
+      }
+      api.update(obj = newObj);
+    } else {
+      api.remove();
+    }
+  };
+  return updater;
+}
+module.exports = function (list, options) {
+  options = options || {};
+  list = list || [];
+  var lastIdentifiers = modulesToDom(list, options);
+  return function update(newList) {
+    newList = newList || [];
+    for (var i = 0; i < lastIdentifiers.length; i++) {
+      var identifier = lastIdentifiers[i];
+      var index = getIndexByIdentifier(identifier);
+      stylesInDOM[index].references--;
+    }
+    var newLastIdentifiers = modulesToDom(newList, options);
+    for (var _i = 0; _i < lastIdentifiers.length; _i++) {
+      var _identifier = lastIdentifiers[_i];
+      var _index = getIndexByIdentifier(_identifier);
+      if (stylesInDOM[_index].references === 0) {
+        stylesInDOM[_index].updater();
+        stylesInDOM.splice(_index, 1);
+      }
+    }
+    lastIdentifiers = newLastIdentifiers;
+  };
+};
+
+/***/ }),
+
+/***/ 7659:
+/***/ ((module) => {
+
+
+
+var memo = {};
+
+/* istanbul ignore next  */
+function getTarget(target) {
+  if (typeof memo[target] === "undefined") {
+    var styleTarget = document.querySelector(target);
+
+    // Special case to return head of iframe instead of iframe itself
+    if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+      try {
+        // This will throw an exception if access to iframe is blocked
+        // due to cross-origin restrictions
+        styleTarget = styleTarget.contentDocument.head;
+      } catch (e) {
+        // istanbul ignore next
+        styleTarget = null;
+      }
+    }
+    memo[target] = styleTarget;
+  }
+  return memo[target];
+}
+
+/* istanbul ignore next  */
+function insertBySelector(insert, style) {
+  var target = getTarget(insert);
+  if (!target) {
+    throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
+  }
+  target.appendChild(style);
+}
+module.exports = insertBySelector;
+
+/***/ }),
+
+/***/ 540:
+/***/ ((module) => {
+
+
+
+/* istanbul ignore next  */
+function insertStyleElement(options) {
+  var element = document.createElement("style");
+  options.setAttributes(element, options.attributes);
+  options.insert(element, options.options);
+  return element;
+}
+module.exports = insertStyleElement;
+
+/***/ }),
+
+/***/ 5056:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+
+
+/* istanbul ignore next  */
+function setAttributesWithoutAttributes(styleElement) {
+  var nonce =  true ? __webpack_require__.nc : 0;
+  if (nonce) {
+    styleElement.setAttribute("nonce", nonce);
+  }
+}
+module.exports = setAttributesWithoutAttributes;
+
+/***/ }),
+
+/***/ 7825:
+/***/ ((module) => {
+
+
+
+/* istanbul ignore next  */
+function apply(styleElement, options, obj) {
+  var css = "";
+  if (obj.supports) {
+    css += "@supports (".concat(obj.supports, ") {");
+  }
+  if (obj.media) {
+    css += "@media ".concat(obj.media, " {");
+  }
+  var needLayer = typeof obj.layer !== "undefined";
+  if (needLayer) {
+    css += "@layer".concat(obj.layer.length > 0 ? " ".concat(obj.layer) : "", " {");
+  }
+  css += obj.css;
+  if (needLayer) {
+    css += "}";
+  }
+  if (obj.media) {
+    css += "}";
+  }
+  if (obj.supports) {
+    css += "}";
+  }
+  var sourceMap = obj.sourceMap;
+  if (sourceMap && typeof btoa !== "undefined") {
+    css += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))), " */");
+  }
+
+  // For old IE
+  /* istanbul ignore if  */
+  options.styleTagTransform(css, styleElement, options.options);
+}
+function removeStyleElement(styleElement) {
+  // istanbul ignore if
+  if (styleElement.parentNode === null) {
+    return false;
+  }
+  styleElement.parentNode.removeChild(styleElement);
+}
+
+/* istanbul ignore next  */
+function domAPI(options) {
+  if (typeof document === "undefined") {
+    return {
+      update: function update() {},
+      remove: function remove() {}
+    };
+  }
+  var styleElement = options.insertStyleElement(options);
+  return {
+    update: function update(obj) {
+      apply(styleElement, options, obj);
+    },
+    remove: function remove() {
+      removeStyleElement(styleElement);
+    }
+  };
+}
+module.exports = domAPI;
+
+/***/ }),
+
+/***/ 1113:
+/***/ ((module) => {
+
+
+
+/* istanbul ignore next  */
+function styleTagTransform(css, styleElement) {
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = css;
+  } else {
+    while (styleElement.firstChild) {
+      styleElement.removeChild(styleElement.firstChild);
+    }
+    styleElement.appendChild(document.createTextNode(css));
+  }
+}
+module.exports = styleTagTransform;
+
+/***/ }),
+
 /***/ 3947:
 /***/ ((__webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -28994,7 +29495,7 @@ var z = /*#__PURE__*/Object.freeze({
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
+/******/ 			id: moduleId,
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
@@ -29010,6 +29511,18 @@ var z = /*#__PURE__*/Object.freeze({
 /******/ 	__webpack_require__.m = __webpack_modules__;
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/create fake namespace object */
 /******/ 	(() => {
 /******/ 		var getProto = Object.getPrototypeOf ? (obj) => (Object.getPrototypeOf(obj)) : (obj) => (obj.__proto__);
@@ -29261,6 +29774,11 @@ var z = /*#__PURE__*/Object.freeze({
 /******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/nonce */
+/******/ 	(() => {
+/******/ 		__webpack_require__.nc = undefined;
+/******/ 	})();
+/******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be isolated against other entry modules.
@@ -29372,1157 +29890,216 @@ remotion_1.Internals.CSSUtils.injectCSS(`
 var esm = __webpack_require__(3947);
 // EXTERNAL MODULE: ./node_modules/react/jsx-runtime.js
 var jsx_runtime = __webpack_require__(4848);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
+var injectStylesIntoStyleTag = __webpack_require__(5072);
+var injectStylesIntoStyleTag_default = /*#__PURE__*/__webpack_require__.n(injectStylesIntoStyleTag);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleDomAPI.js
+var styleDomAPI = __webpack_require__(7825);
+var styleDomAPI_default = /*#__PURE__*/__webpack_require__.n(styleDomAPI);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertBySelector.js
+var insertBySelector = __webpack_require__(7659);
+var insertBySelector_default = /*#__PURE__*/__webpack_require__.n(insertBySelector);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js
+var setAttributesWithoutAttributes = __webpack_require__(5056);
+var setAttributesWithoutAttributes_default = /*#__PURE__*/__webpack_require__.n(setAttributesWithoutAttributes);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertStyleElement.js
+var insertStyleElement = __webpack_require__(540);
+var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleElement);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
+var styleTagTransform = __webpack_require__(1113);
+var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./src/index.css
+var cjs_js_src = __webpack_require__(8972);
+;// ./src/index.css
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (styleTagTransform_default());
+options.setAttributes = (setAttributesWithoutAttributes_default());
+options.insert = insertBySelector_default().bind(null, "head");
+options.domAPI = (styleDomAPI_default());
+options.insertStyleElement = (insertStyleElement_default());
+
+var update = injectStylesIntoStyleTag_default()(cjs_js_src/* default */.A, options);
+
+
+
+
+       /* harmony default export */ const src = (cjs_js_src/* default */.A && cjs_js_src/* default */.A.locals ? cjs_js_src/* default */.A.locals : undefined);
+
+// EXTERNAL MODULE: ./node_modules/react/index.js
+var react = __webpack_require__(6540);
 // EXTERNAL MODULE: ./node_modules/zod/lib/index.mjs
 var lib = __webpack_require__(4476);
-;// ./src/utils.ts
+;// ./src/components/ErrorBoundary.tsx
 
-const DEFAULT_COLORS = [
-  "#FF6B6B",
-  "#4ECDC4",
-  "#45B7D1",
-  "#96CEB4",
-  "#FFEAA7",
-  "#DDA0DD",
-  "#98D8C8",
-  "#F7DC6F",
-  "#BB8FCE",
-  "#85C1E9",
-  "#F8C471",
-  "#82E0AA",
-  "#F1948A",
-  "#85C1E9",
-  "#D2B4DE"
-];
-function generateColors(itemCount, colorConfig) {
-  if (colorConfig === "auto") {
-    const colors = [];
-    for (let i = 0; i < itemCount; i++) {
-      colors.push(DEFAULT_COLORS[i % DEFAULT_COLORS.length]);
-    }
-    return colors;
+
+
+
+class ErrorBoundary extends react.Component {
+  constructor() {
+    super(...arguments);
+    this.state = {
+      hasError: false
+    };
   }
-  return colorConfig;
-}
-function getItemColor(item, colors, index) {
-  if (item.color) return item.color;
-  return colors[index % colors.length];
-}
-function getMaxValue(data, maxValueType, globalMax) {
-  if (maxValueType === "global" && globalMax) {
-    return globalMax;
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
   }
-  return data.maxValue;
-}
-function formatValue(value, format, prefix, suffix) {
-  let formatted = value.toLocaleString();
-  if (format.includes(":,.0f")) {
-    formatted = Math.round(value).toLocaleString();
-  } else if (format.includes(":.2f")) {
-    formatted = value.toFixed(2);
-  } else if (format.includes(".2f}M")) {
-    formatted = (value / 1e6).toFixed(2) + "M";
-  } else if (format.includes(".1f}K")) {
-    formatted = (value / 1e3).toFixed(1) + "K";
-  }
-  return `${prefix || ""}${formatted}${suffix || ""}`;
-}
-function smoothInterpolate(from, to, progress) {
-  const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-  return from + (to - from) * eased;
-}
-function calculateBarPosition(currentRank, previousRank, frame, fps, overtakeDuration, itemSpacing) {
-  const overtakeFrames = overtakeDuration * fps;
-  const progress = Math.min(1, frame / overtakeFrames);
-  const fromY = previousRank * itemSpacing;
-  const toY = currentRank * itemSpacing;
-  return smoothInterpolate(fromY, toY, progress);
-}
-function calculateBarWidth(currentValue, previousValue, maxValue, containerWidth, frame, fps, animationType) {
-  if (animationType === "discrete") {
-    return currentValue / maxValue * containerWidth;
-  }
-  const animationFrames = fps * 0.5;
-  const progress = Math.min(1, frame / animationFrames);
-  const fromWidth = previousValue / maxValue * containerWidth;
-  const toWidth = currentValue / maxValue * containerWidth;
-  return smoothInterpolate(fromWidth, toWidth, progress);
-}
-function createSampleData() {
-  const sampleItems = [
-    "YouTube",
-    "Netflix",
-    "Disney+",
-    "HBO Max",
-    "Amazon Prime",
-    "Apple TV+",
-    "Hulu",
-    "Paramount+",
-    "Peacock",
-    "Discovery+"
-  ];
-  const frames = [];
-  const totalFrames = 300;
-  for (let frame = 0; frame < totalFrames; frame++) {
-    const items = sampleItems.map((name, index) => {
-      const baseValue = 1e6 + index * 5e5;
-      const growth = frame * 1e4;
-      const variation = Math.sin(frame * 0.1 + index) * 2e5;
-      const value = Math.max(0, baseValue + growth + variation);
-      return {
-        id: name.toLowerCase().replace(/[^a-z0-9]/g, ""),
-        name,
-        value,
-        rank: 0,
-        // Will be calculated
-        color: DEFAULT_COLORS[index % DEFAULT_COLORS.length]
-      };
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    this.setState({
+      error,
+      errorInfo
     });
-    items.sort((a, b) => b.value - a.value);
-    items.forEach((item, index) => {
-      item.rank = index + 1;
-    });
-    const maxValue = Math.max(...items.map((item) => item.value));
-    frames.push({
-      frame,
-      date: new Date(2020, 0, 1 + Math.floor(frame / 30)).toISOString().split("T")[0],
-      items,
-      maxValue
-    });
-  }
-  const globalMaxValue = Math.max(...frames.map((f) => f.maxValue));
-  return {
-    frames,
-    totalFrames,
-    dateRange: {
-      start: frames[0].date,
-      end: frames[frames.length - 1].date
-    },
-    valueColumns: sampleItems,
-    globalMaxValue
-  };
-}
-function validateFrameData(data) {
-  if (!data.items || data.items.length === 0) return false;
-  for (const item of data.items) {
-    if (!item.id || !item.name || typeof item.value !== "number" || typeof item.rank !== "number") {
-      return false;
-    }
-    if (item.value < 0 || item.rank < 1) {
-      return false;
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
     }
   }
-  return true;
-}
-function getFrameData(processedData, frame) {
-  if (!processedData) {
-    throw new Error("ProcessedData is required");
-  }
-  if (!processedData.frames || !Array.isArray(processedData.frames)) {
-    throw new Error("ProcessedData.frames must be an array");
-  }
-  if (processedData.frames.length === 0) {
-    throw new Error("ProcessedData.frames cannot be empty");
-  }
-  if (typeof frame !== "number" || isNaN(frame)) {
-    throw new Error("Frame must be a valid number");
-  }
-  const clampedFrame = Math.max(0, Math.min(frame, processedData.frames.length - 1));
-  const frameData = processedData.frames[clampedFrame];
-  if (!frameData) {
-    throw new Error(`Frame data not found for frame ${clampedFrame}`);
-  }
-  if (!frameData.hasOwnProperty("frame")) {
-    frameData.frame = clampedFrame;
-  }
-  if (!frameData.hasOwnProperty("items")) {
-    frameData.items = [];
-  }
-  if (!frameData.hasOwnProperty("maxValue")) {
-    frameData.maxValue = frameData.items.length > 0 ? Math.max(...frameData.items.map((item) => item.value || 0)) : 0;
-  }
-  if (!frameData.hasOwnProperty("date")) {
-    frameData.date = (/* @__PURE__ */ new Date()).toISOString();
-  }
-  return frameData;
-}
-function safeGetFrameData(processedData, frame) {
-  try {
-    if (!processedData) return null;
-    return getFrameData(processedData, frame);
-  } catch (error) {
-    console.warn(`Failed to get frame data for frame ${frame}:`, error);
-    return null;
-  }
-}
-function validateProcessedData(data) {
-  const errors = [];
-  if (!data) {
-    errors.push("ProcessedData is null or undefined");
-    return { isValid: false, errors };
-  }
-  if (!data.frames || !Array.isArray(data.frames)) {
-    errors.push("frames must be an array");
-  } else if (data.frames.length === 0) {
-    errors.push("frames array cannot be empty");
-  } else {
-    data.frames.forEach((frame, index) => {
-      if (!frame) {
-        errors.push(`Frame ${index} is null or undefined`);
-        return;
+  render() {
+    var _a, _b;
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
       }
-      if (typeof frame.frame !== "number") {
-        errors.push(`Frame ${index}: frame number must be a number`);
-      }
-      if (!frame.items || !Array.isArray(frame.items)) {
-        errors.push(`Frame ${index}: items must be an array`);
-      } else {
-        frame.items.forEach((item, itemIndex) => {
-          if (!item) {
-            errors.push(`Frame ${index}, Item ${itemIndex}: item is null or undefined`);
-            return;
-          }
-          if (!item.id || typeof item.id !== "string") {
-            errors.push(`Frame ${index}, Item ${itemIndex}: id must be a non-empty string`);
-          }
-          if (!item.name || typeof item.name !== "string") {
-            errors.push(`Frame ${index}, Item ${itemIndex}: name must be a non-empty string`);
-          }
-          if (typeof item.value !== "number" || isNaN(item.value)) {
-            errors.push(`Frame ${index}, Item ${itemIndex}: value must be a valid number`);
-          }
-          if (typeof item.rank !== "number" || isNaN(item.rank) || item.rank < 1) {
-            errors.push(`Frame ${index}, Item ${itemIndex}: rank must be a positive number`);
-          }
-        });
-      }
-      if (typeof frame.maxValue !== "number" || isNaN(frame.maxValue)) {
-        errors.push(`Frame ${index}: maxValue must be a valid number`);
-      }
-    });
-  }
-  if (typeof data.totalFrames !== "number" || data.totalFrames < 0) {
-    errors.push("totalFrames must be a non-negative number");
-  }
-  if (!data.valueColumns || !Array.isArray(data.valueColumns)) {
-    errors.push("valueColumns must be an array");
-  }
-  if (typeof data.globalMaxValue !== "number" || isNaN(data.globalMaxValue)) {
-    errors.push("globalMaxValue must be a valid number");
-  }
-  return { isValid: errors.length === 0, errors };
-}
-function calculateContainerDimensions(config, videoWidth, videoHeight) {
-  const width = videoWidth - config.position.left - config.position.right;
-  const height = videoHeight - config.position.top - config.position.bottom;
-  return { width: Math.max(0, width), height: Math.max(0, height) };
-}
-function calculateItemHeight(containerHeight, visibleItemCount, itemSpacing) {
-  const totalSpacing = (visibleItemCount - 1) * itemSpacing;
-  const availableHeight = containerHeight - totalSpacing;
-  return Math.max(20, availableHeight / visibleItemCount);
-}
-
-;// ./src/utils/AnimationUtils.ts
-
-
-const EasingFunctions = {
-  // Cubic Bezier curves
-  easeInCubic: (t) => t * t * t,
-  easeOutCubic: (t) => 1 - Math.pow(1 - t, 3),
-  easeInOutCubic: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
-  // Quartic easing
-  easeInQuart: (t) => t * t * t * t,
-  easeOutQuart: (t) => 1 - Math.pow(1 - t, 4),
-  easeInOutQuart: (t) => t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2,
-  // Elastic easing
-  easeInElastic: (t) => {
-    const c4 = 2 * Math.PI / 3;
-    return t === 0 ? 0 : t === 1 ? 1 : -Math.pow(2, 10 * t - 10) * Math.sin((t * 10 - 10.75) * c4);
-  },
-  easeOutElastic: (t) => {
-    const c4 = 2 * Math.PI / 3;
-    return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
-  },
-  easeInOutElastic: (t) => {
-    const c5 = 2 * Math.PI / 4.5;
-    return t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? -(Math.pow(2, 20 * t - 10) * Math.sin((20 * t - 11.125) * c5)) / 2 : Math.pow(2, -20 * t + 10) * Math.sin((20 * t - 11.125) * c5) / 2 + 1;
-  },
-  // Bounce easing
-  easeInBounce: (t) => 1 - EasingFunctions.easeOutBounce(1 - t),
-  easeOutBounce: (t) => {
-    const n1 = 7.5625;
-    const d1 = 2.75;
-    if (t < 1 / d1) {
-      return n1 * t * t;
-    } else if (t < 2 / d1) {
-      return n1 * (t -= 1.5 / d1) * t + 0.75;
-    } else if (t < 2.5 / d1) {
-      return n1 * (t -= 2.25 / d1) * t + 0.9375;
-    } else {
-      return n1 * (t -= 2.625 / d1) * t + 0.984375;
-    }
-  },
-  easeInOutBounce: (t) => t < 0.5 ? (1 - EasingFunctions.easeOutBounce(1 - 2 * t)) / 2 : (1 + EasingFunctions.easeOutBounce(2 * t - 1)) / 2
-};
-const SpringPresets = {
-  gentle: { damping: 200, stiffness: 100, mass: 1, overshootClamping: false },
-  wobbly: { damping: 180, stiffness: 120, mass: 1, overshootClamping: false },
-  stiff: { damping: 260, stiffness: 200, mass: 1, overshootClamping: false },
-  slow: { damping: 280, stiffness: 60, mass: 1, overshootClamping: false },
-  molasses: { damping: 280, stiffness: 20, mass: 1, overshootClamping: false },
-  bouncy: { damping: 150, stiffness: 180, mass: 1, overshootClamping: false },
-  elastic: { damping: 120, stiffness: 200, mass: 1.2, overshootClamping: false },
-  snappy: { damping: 300, stiffness: 400, mass: 0.8, overshootClamping: false }
-};
-const createAdvancedAnimation = (frame, fps, from, to, config) => {
-  const startFrame = (config.delay || 0) * fps;
-  const animationFrame = Math.max(0, frame - startFrame);
-  if (frame < startFrame) return from;
-  switch (config.type) {
-    case "spring":
-      const springConfig = typeof config.springConfig === "string" ? SpringPresets[config.springConfig] || SpringPresets.gentle : config.springConfig || SpringPresets.gentle;
-      return (0,esm.spring)({
-        frame: animationFrame,
-        fps,
-        config: springConfig,
-        from,
-        to
-      });
-    case "interpolate":
-      const duration = config.duration || 1;
-      const durationFrames = duration * fps;
-      const easingFn = config.easing ? EasingFunctions[config.easing] : void 0;
-      let progress = Math.min(animationFrame / durationFrames, 1);
-      if (config.loop && animationFrame > durationFrames) {
-        const cycleFrame = animationFrame % durationFrames;
-        progress = cycleFrame / durationFrames;
-      }
-      if (config.yoyo) {
-        const cycleProgress = progress * 2;
-        progress = cycleProgress <= 1 ? cycleProgress : 2 - cycleProgress;
-      }
-      if (easingFn) {
-        progress = easingFn(progress);
-      }
-      return (0,esm.interpolate)(progress, [0, 1], [from, to], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp"
-      });
-    case "custom":
-      if (!config.customFunction) return from;
-      const customDuration = config.duration || 1;
-      const customProgress = Math.min(animationFrame / (customDuration * fps), 1);
-      const customValue = config.customFunction(customProgress);
-      return (0,esm.interpolate)(customValue, [0, 1], [from, to]);
-    default:
-      return to;
-  }
-};
-const createStaggeredAnimation = (frame, fps, index, totalItems, from, to, config) => {
-  const staggeredConfig = {
-    ...config,
-    delay: (config.delay || 0) + config.staggerDelay * index
-  };
-  return createAdvancedAnimation(frame, fps, from, to, staggeredConfig);
-};
-const interpolateColor = (progress, fromColor, toColor) => {
-  const hexToRgb = (hex) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : { r: 0, g: 0, b: 0 };
-  };
-  const rgbToHex = (r2, g2, b2) => {
-    return "#" + ((1 << 24) + (Math.round(r2) << 16) + (Math.round(g2) << 8) + Math.round(b2)).toString(16).slice(1);
-  };
-  const fromRgb = hexToRgb(fromColor);
-  const toRgb = hexToRgb(toColor);
-  const r = (0,esm.interpolate)(progress, [0, 1], [fromRgb.r, toRgb.r]);
-  const g = (0,esm.interpolate)(progress, [0, 1], [fromRgb.g, toRgb.g]);
-  const b = (0,esm.interpolate)(progress, [0, 1], [fromRgb.b, toRgb.b]);
-  return rgbToHex(r, g, b);
-};
-const createAnimatedGradient = (frame, fps, colors, duration = 4, direction = 45) => {
-  const progress = frame / fps % duration / duration;
-  const colorCount = colors.length;
-  const currentIndex = Math.floor(progress * colorCount);
-  const nextIndex = (currentIndex + 1) % colorCount;
-  const localProgress = progress * colorCount % 1;
-  const currentColor = colors[currentIndex];
-  const nextColor = colors[nextIndex];
-  const interpolatedColor = interpolateColor(localProgress, currentColor, nextColor);
-  return `linear-gradient(${direction}deg, ${currentColor}, ${interpolatedColor}, ${nextColor})`;
-};
-const createShakeAnimation = (frame, fps, intensity = 5, duration = 0.5) => {
-  const progress = frame / fps % duration / duration;
-  if (progress > 1) return { x: 0, y: 0 };
-  const shakeProgress = progress * Math.PI * 12;
-  const decay = 1 - progress;
-  return {
-    x: Math.sin(shakeProgress) * intensity * decay,
-    y: Math.cos(shakeProgress * 1.1) * intensity * decay * 0.5
-  };
-};
-const createPulseAnimation = (frame, fps, baseValue = 1, amplitude = 0.2, frequency = 2) => {
-  const time = frame / fps;
-  const pulse = Math.sin(time * Math.PI * 2 * frequency) * amplitude;
-  return baseValue + pulse;
-};
-const createTypewriterEffect = (frame, fps, text, duration = 2, delay = 0) => {
-  const startFrame = delay * fps;
-  if (frame < startFrame) return "";
-  const animationFrame = frame - startFrame;
-  const progress = Math.min(animationFrame / (duration * fps), 1);
-  const charactersToShow = Math.floor(progress * text.length);
-  return text.substring(0, charactersToShow);
-};
-const createRevealAnimation = (frame, fps, effect, duration = 1, delay = 0) => {
-  const startFrame = delay * fps;
-  if (frame < startFrame) {
-    return { opacity: 0, transform: getInitialTransform(effect) };
-  }
-  const animationFrame = frame - startFrame;
-  const progress = Math.min(animationFrame / (duration * fps), 1);
-  const easedProgress = EasingFunctions.easeOutCubic(progress);
-  return {
-    opacity: easedProgress,
-    transform: getAnimatedTransform(effect, easedProgress)
-  };
-};
-const getInitialTransform = (effect) => {
-  switch (effect) {
-    case "slide-up":
-      return "translateY(50px)";
-    case "slide-down":
-      return "translateY(-50px)";
-    case "slide-left":
-      return "translateX(50px)";
-    case "slide-right":
-      return "translateX(-50px)";
-    case "zoom":
-      return "scale(0.5)";
-    case "flip":
-      return "rotateY(90deg)";
-    default:
-      return "none";
-  }
-};
-const getAnimatedTransform = (effect, progress) => {
-  switch (effect) {
-    case "slide-up":
-      return `translateY(${50 * (1 - progress)}px)`;
-    case "slide-down":
-      return `translateY(${-50 * (1 - progress)}px)`;
-    case "slide-left":
-      return `translateX(${50 * (1 - progress)}px)`;
-    case "slide-right":
-      return `translateX(${-50 * (1 - progress)}px)`;
-    case "zoom":
-      return `scale(${0.5 + 0.5 * progress})`;
-    case "flip":
-      return `rotateY(${90 * (1 - progress)}deg)`;
-    default:
-      return "none";
-  }
-};
-/* harmony default export */ const AnimationUtils = ({
-  EasingFunctions,
-  SpringPresets,
-  createAdvancedAnimation,
-  createStaggeredAnimation,
-  interpolateColor,
-  createAnimatedGradient,
-  createShakeAnimation,
-  createPulseAnimation,
-  createTypewriterEffect,
-  createRevealAnimation
-});
-
-;// ./src/utils/OvertakingAnimations.ts
-
-
-const OvertakingPresets = {
-  smooth: {
-    duration: 0.8,
-    easing: "smooth",
-    trailEffect: true,
-    glowIntensity: 0.3,
-    curveIntensity: 0.2,
-    accelerationCurve: "exponential"
-  },
-  dramatic: {
-    duration: 1.2,
-    easing: "elastic",
-    trailEffect: true,
-    glowIntensity: 0.6,
-    curveIntensity: 0.4,
-    accelerationCurve: "exponential"
-  },
-  swift: {
-    duration: 0.4,
-    easing: "aggressive",
-    trailEffect: false,
-    glowIntensity: 0.2,
-    curveIntensity: 0.1,
-    accelerationCurve: "linear"
-  },
-  bouncy: {
-    duration: 1,
-    easing: "bounce",
-    trailEffect: true,
-    glowIntensity: 0.4,
-    curveIntensity: 0.3,
-    accelerationCurve: "logarithmic"
-  }
-};
-const calculateOvertakingPath = (progress, fromY, toY, curveIntensity, isMovingUp) => {
-  const direction = isMovingUp ? -1 : 1;
-  const maxOffset = Math.abs(toY - fromY) * curveIntensity;
-  const t = progress;
-  const t2 = t * t;
-  const t3 = t2 * t;
-  const mt = 1 - t;
-  const mt2 = mt * mt;
-  const mt3 = mt2 * mt;
-  const xOffset = 4 * t * mt * maxOffset * direction;
-  const y = (0,esm.interpolate)(progress, [0, 1], [fromY, toY]);
-  return { y, x: xOffset };
-};
-const getOvertakingSpringConfig = (easing) => {
-  switch (easing) {
-    case "smooth":
-      return { damping: 200, stiffness: 150, mass: 1 };
-    case "elastic":
-      return { damping: 150, stiffness: 200, mass: 1.2 };
-    case "bounce":
-      return { damping: 180, stiffness: 300, mass: 0.8 };
-    case "aggressive":
-      return { damping: 300, stiffness: 400, mass: 0.6 };
-    default:
-      return { damping: 200, stiffness: 150, mass: 1 };
-  }
-};
-const calculateAcceleration = (progress, accelerationCurve) => {
-  switch (accelerationCurve) {
-    case "exponential":
-      return Math.pow(progress, 2);
-    case "logarithmic":
-      return Math.log10(progress * 9 + 1);
-    case "linear":
-    default:
-      return progress;
-  }
-};
-const calculateTrailOpacity = (frame, overtakeStartFrame, duration, fps) => {
-  const overtakeProgress = (frame - overtakeStartFrame) / (duration * fps);
-  if (overtakeProgress < 0 || overtakeProgress > 1) return 0;
-  if (overtakeProgress < 0.3) {
-    return (0,esm.interpolate)(overtakeProgress, [0, 0.3], [0, 0.6]);
-  } else {
-    return (0,esm.interpolate)(overtakeProgress, [0.3, 1], [0.6, 0]);
-  }
-};
-const calculateOvertakeGlow = (frame, overtakeStartFrame, duration, fps, glowIntensity) => {
-  const overtakeProgress = (frame - overtakeStartFrame) / (duration * fps);
-  if (overtakeProgress < 0 || overtakeProgress > 1) {
-    return { shadowBlur: 0, shadowColor: "transparent", glowScale: 1 };
-  }
-  const pulseFrequency = 3;
-  const pulseMagnitude = Math.sin(overtakeProgress * Math.PI * pulseFrequency) * 0.5 + 0.5;
-  const shadowBlur = glowIntensity * 20 * pulseMagnitude;
-  const glowOpacity = glowIntensity * pulseMagnitude;
-  const shadowColor = `rgba(255, 215, 0, ${glowOpacity})`;
-  const glowScale = 1 + glowIntensity * 0.05 * pulseMagnitude;
-  return { shadowBlur, shadowColor, glowScale };
-};
-const animateOvertaking = (frame, fps, fromRank, toRank, itemHeight, spacing, config = OvertakingPresets.smooth) => {
-  const fromY = (fromRank - 1) * (itemHeight + spacing);
-  const toY = (toRank - 1) * (itemHeight + spacing);
-  const isMovingUp = toRank < fromRank;
-  const durationFrames = config.duration * fps;
-  const progress = Math.min(Math.max(frame / durationFrames, 0), 1);
-  const acceleratedProgress = calculateAcceleration(progress, config.accelerationCurve);
-  const position = calculateOvertakingPath(
-    acceleratedProgress,
-    fromY,
-    toY,
-    config.curveIntensity,
-    isMovingUp
-  );
-  const trailOpacity = config.trailEffect ? calculateTrailOpacity(frame, 0, config.duration, fps) : 0;
-  const glow = calculateOvertakeGlow(frame, 0, config.duration, fps, config.glowIntensity);
-  const zIndex = progress > 0 && progress < 1 ? 100 : 1;
-  return {
-    position,
-    effects: {
-      trailOpacity,
-      glow,
-      zIndex
-    }
-  };
-};
-const detectOvertaking = (currentRank, previousRank, threshold = 0) => {
-  if (!previousRank) return false;
-  return Math.abs(currentRank - previousRank) > threshold;
-};
-const createMomentumTransition = (frame, fps, fromRank, toRank, momentum = 0.2) => {
-  const springConfig = {
-    damping: 200 - momentum * 100,
-    stiffness: 150 + momentum * 150,
-    mass: 1 - momentum * 0.5
-  };
-  return spring({
-    frame,
-    fps,
-    from: fromRank,
-    to: toRank,
-    config: springConfig
-  });
-};
-
-;// ./src/utils/CelebrationAnimations.ts
-
-
-const CelebrationPresets = {
-  subtle: {
-    type: "sparkle",
-    duration: 1.5,
-    intensity: 0.3,
-    colors: ["#FFD700", "#FFA500", "#FF6347"],
-    particleCount: 20
-  },
-  exciting: {
-    type: "confetti",
-    duration: 2.5,
-    intensity: 0.7,
-    colors: ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8"],
-    particleCount: 50
-  },
-  epic: {
-    type: "fireworks",
-    duration: 3,
-    intensity: 1,
-    colors: ["#FFD700", "#FF6347", "#00CED1", "#FF1493", "#00FF00"],
-    particleCount: 100
-  }
-};
-const generateCelebrationParticles = (seed, config, centerX, centerY) => {
-  const particles = [];
-  for (let i = 0; i < config.particleCount; i++) {
-    const particleSeed = `${seed}-${i}`;
-    const angle = random(particleSeed + "-angle") * Math.PI * 2;
-    const velocity = random(particleSeed + "-velocity") * config.intensity * 10;
-    const size = random(particleSeed + "-size") * 10 + 5;
-    const colorIndex = Math.floor(random(particleSeed + "-color") * config.colors.length);
-    particles.push({
-      id: particleSeed,
-      x: centerX,
-      y: centerY,
-      vx: Math.cos(angle) * velocity,
-      vy: Math.sin(angle) * velocity - 5,
-      // Slight upward bias
-      size,
-      color: config.colors[colorIndex],
-      rotation: random(particleSeed + "-rotation") * 360,
-      lifetime: config.duration
-    });
-  }
-  return particles;
-};
-const animateConfettiParticle = (particle, frame, fps, gravity = 0.5) => {
-  const time = frame / fps;
-  const progress = Math.min(time / particle.lifetime, 1);
-  const x = particle.x + particle.vx * time;
-  const y = particle.y + particle.vy * time + 0.5 * gravity * time * time;
-  const rotation = particle.rotation + time * 360;
-  const opacity = interpolate(progress, [0, 0.7, 1], [1, 1, 0]);
-  const scale = interpolate(progress, [0, 0.8, 1], [1, 1, 0.5]);
-  return { x, y, rotation, opacity, scale };
-};
-const createSparkleEffect = (frame, fps, x, y, duration, intensity) => {
-  const progress = Math.min(frame / (fps * duration), 1);
-  const pulseFrequency = 5 * intensity;
-  const pulse = Math.sin(progress * Math.PI * pulseFrequency) * 0.2 + 0.8;
-  const scale = pulse * (0,esm.interpolate)(progress, [0, 0.5, 1], [0, 1, 0]);
-  const opacity = (0,esm.interpolate)(progress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
-  const blur = (0,esm.interpolate)(progress, [0, 0.5, 1], [0, 2, 5]) * intensity;
-  return { scale, opacity, blur };
-};
-const createBurstEffect = (frame, fps, duration, intensity) => {
-  const progress = Math.min(frame / (fps * duration), 1);
-  const scale = (0,esm.interpolate)(progress, [0, 1], [0, 3]) * (1 + intensity);
-  const opacity = (0,esm.interpolate)(progress, [0, 0.3, 1], [1, 1, 0]);
-  const strokeWidth = (0,esm.interpolate)(progress, [0, 1], [4, 1]) * intensity;
-  return { scale, opacity, strokeWidth };
-};
-const createWaveEffect = (frame, fps, startX, amplitude, frequency, speed) => {
-  const time = frame / fps;
-  const progress = Math.min(time / 2, 1);
-  const points = [];
-  const segments = 50;
-  for (let i = 0; i <= segments; i++) {
-    const x = startX + i / segments * 200;
-    const phase = x / 50 + time * speed;
-    const y = Math.sin(phase * frequency) * amplitude * (1 - progress);
-    if (i === 0) {
-      points.push(`M ${x} ${y}`);
-    } else {
-      points.push(`L ${x} ${y}`);
-    }
-  }
-  const path = points.join(" ");
-  const opacity = interpolate(progress, [0, 0.8, 1], [1, 1, 0]);
-  return { path, opacity };
-};
-const detectMilestone = (value, milestones, tolerance = 0.01) => {
-  for (const milestone of milestones) {
-    if (Math.abs(value - milestone) < milestone * tolerance) {
-      return milestone;
-    }
-  }
-  return null;
-};
-const createAchievementBadge = (frame, fps, text, duration = 2) => {
-  const progress = Math.min(frame / (fps * duration), 1);
-  const scale = spring({
-    frame,
-    fps,
-    from: 0,
-    to: 1,
-    config: { damping: 150, stiffness: 300, mass: 0.8 }
-  });
-  const rotation = Math.sin(progress * Math.PI * 2) * 5;
-  const y = interpolate(progress, [0, 1], [0, -50]);
-  const opacity = interpolate(progress, [0, 0.7, 1], [1, 1, 0]);
-  return { scale, opacity, rotation, y };
-};
-const createStreakEffect = (consecutiveWins, frame, fps) => {
-  const streakLevel = Math.min(consecutiveWins / 5, 1);
-  const time = frame / fps;
-  const glowBase = 0.3 + streakLevel * 0.7;
-  const glowPulse = Math.sin(time * Math.PI * 2) * 0.2;
-  const glowIntensity = glowBase + glowPulse;
-  const particleSpeed = 1 + streakLevel * 2;
-  const trailLength = 0.5 + streakLevel * 0.5;
-  return { glowIntensity, particleSpeed, trailLength };
-};
-
-;// ./src/BarItem.tsx
-
-
-
-
-
-
-
-const BarItem = ({
-  item,
-  index,
-  config,
-  maxValue,
-  containerWidth,
-  containerHeight,
-  totalItems,
-  previousRank,
-  isNewRecord,
-  isOvertaking
-}) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
-  const frame = (0,esm.useCurrentFrame)();
-  const { fps } = (0,esm.useVideoConfig)();
-  const itemHeight = calculateItemHeight(containerHeight, config.chart.visibleItemCount, config.chart.itemSpacing);
-  const barWidth = item.value / maxValue * containerWidth;
-  const animationConfig = ((_a = config.animations) == null ? void 0 : _a.bar) || { type: "spring", springPreset: "gentle" };
-  const animatedWidth = animationConfig.type === "spring" ? (0,esm.spring)({
-    frame,
-    fps,
-    config: SpringPresets[animationConfig.springPreset] || SpringPresets.gentle,
-    from: 0,
-    to: barWidth
-  }) : createAdvancedAnimation(
-    frame,
-    fps,
-    0,
-    barWidth,
-    {
-      type: "interpolate",
-      duration: animationConfig.duration || 1,
-      easing: animationConfig.easing || "easeOutCubic",
-      delay: index * (animationConfig.staggerDelay || 0.1)
-    }
-  );
-  const isActuallyOvertaking = detectOvertaking(item.rank, previousRank, 0);
-  const overtakeIntensity = previousRank ? Math.abs(item.rank - previousRank) : 0;
-  let yPosition;
-  let xOffset = 0;
-  let overtakeEffects = { trailOpacity: 0, glow: { shadowBlur: 0, shadowColor: "transparent", glowScale: 1 }, zIndex: 1 };
-  if (isActuallyOvertaking && ((_c = (_b = config.animations) == null ? void 0 : _b.overtaking) == null ? void 0 : _c.enabled) !== false) {
-    const overtakePreset = overtakeIntensity > 3 ? "dramatic" : overtakeIntensity > 1 ? "smooth" : "swift";
-    const overtakeConfig = ((_e = (_d = config.animations) == null ? void 0 : _d.overtaking) == null ? void 0 : _e.preset) ? OvertakingPresets[config.animations.overtaking.preset] : OvertakingPresets[overtakePreset];
-    const overtakeAnimation = animateOvertaking(
-      frame,
-      fps,
-      previousRank || item.rank,
-      item.rank,
-      itemHeight,
-      config.chart.itemSpacing,
-      overtakeConfig
-    );
-    yPosition = overtakeAnimation.position.y;
-    xOffset = overtakeAnimation.position.x;
-    overtakeEffects = overtakeAnimation.effects;
-  } else {
-    const fromY = index * (itemHeight + config.chart.itemSpacing);
-    const toY = (item.rank - 1) * (itemHeight + config.chart.itemSpacing);
-    const rankAnimationConfig = ((_f = config.animations) == null ? void 0 : _f.rank) || { type: "spring", springPreset: "bouncy" };
-    yPosition = rankAnimationConfig.type === "spring" ? (0,esm.spring)({
-      frame,
-      fps,
-      config: SpringPresets[rankAnimationConfig.springPreset] || SpringPresets.bouncy,
-      from: fromY,
-      to: toY
-    }) : createAdvancedAnimation(
-      frame,
-      fps,
-      fromY,
-      toY,
-      {
-        type: "interpolate",
-        duration: rankAnimationConfig.duration || 0.8,
-        easing: rankAnimationConfig.easing || "easeInOutElastic",
-        delay: Math.abs((previousRank || item.rank) - item.rank) * 0.05
-      }
-    );
-  }
-  const colors = config.bar.colors === "auto" ? [] : config.bar.colors;
-  const baseColor = getItemColor(item, colors, index);
-  let barColor = baseColor;
-  let celebrationEffects = { sparkle: null, burst: null };
-  if (isNewRecord && ((_h = (_g = config.animations) == null ? void 0 : _g.effects) == null ? void 0 : _h.recordHighlight)) {
-    const pulseColor = "#FFD700";
-    const pulseIntensity = createPulseAnimation(frame, fps, 0, 1, 3);
-    barColor = interpolateColor(Math.abs(pulseIntensity), baseColor, pulseColor);
-    if (((_j = (_i = config.animations) == null ? void 0 : _i.celebrations) == null ? void 0 : _j.enabled) !== false) {
-      const sparkle = createSparkleEffect(
-        frame,
-        fps,
-        animatedWidth / 2,
-        itemHeight / 2,
-        1.5,
-        0.8
+      return /* @__PURE__ */ (0,jsx_runtime.jsxs)(
+        esm.AbsoluteFill,
+        {
+          style: {
+            backgroundColor: "#1a1a1a",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 40,
+            color: "#ffffff",
+            fontFamily: "Arial, sans-serif"
+          },
+          children: [
+            /* @__PURE__ */ (0,jsx_runtime.jsxs)(
+              "div",
+              {
+                style: {
+                  backgroundColor: "#d32f2f",
+                  padding: "20px 30px",
+                  borderRadius: 8,
+                  marginBottom: 20,
+                  textAlign: "center",
+                  maxWidth: "80%"
+                },
+                children: [
+                  /* @__PURE__ */ (0,jsx_runtime.jsx)("h2", { style: { margin: 0, marginBottom: 10, fontSize: 28 }, children: "Rendering Error" }),
+                  /* @__PURE__ */ (0,jsx_runtime.jsx)("p", { style: { margin: 0, fontSize: 16, opacity: 0.9 }, children: "An error occurred while rendering this frame" })
+                ]
+              }
+            ),
+            /* @__PURE__ */ (0,jsx_runtime.jsxs)(
+              "div",
+              {
+                style: {
+                  backgroundColor: "#333333",
+                  padding: 20,
+                  borderRadius: 4,
+                  maxWidth: "80%",
+                  maxHeight: "60%",
+                  overflow: "auto"
+                },
+                children: [
+                  /* @__PURE__ */ (0,jsx_runtime.jsx)("h3", { style: { margin: 0, marginBottom: 10, fontSize: 18, color: "#ff9800" }, children: "Error Details:" }),
+                  /* @__PURE__ */ (0,jsx_runtime.jsx)("p", { style: {
+                    margin: 0,
+                    fontSize: 14,
+                    fontFamily: "monospace",
+                    wordBreak: "break-word",
+                    whiteSpace: "pre-wrap"
+                  }, children: ((_a = this.state.error) == null ? void 0 : _a.message) || "Unknown error" }),
+                  ((_b = this.state.errorInfo) == null ? void 0 : _b.componentStack) && /* @__PURE__ */ (0,jsx_runtime.jsxs)(jsx_runtime.Fragment, { children: [
+                    /* @__PURE__ */ (0,jsx_runtime.jsx)("h3", { style: { margin: "20px 0 10px 0", fontSize: 18, color: "#ff9800" }, children: "Component Stack:" }),
+                    /* @__PURE__ */ (0,jsx_runtime.jsx)("p", { style: {
+                      margin: 0,
+                      fontSize: 12,
+                      fontFamily: "monospace",
+                      wordBreak: "break-word",
+                      whiteSpace: "pre-wrap",
+                      color: "#cccccc"
+                    }, children: this.state.errorInfo.componentStack })
+                  ] })
+                ]
+              }
+            ),
+            /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { style: { marginTop: 20, textAlign: "center", color: "#999999" }, children: /* @__PURE__ */ (0,jsx_runtime.jsx)("p", { style: { margin: 0, fontSize: 14 }, children: "Check the console for additional details" }) })
+          ]
+        }
       );
-      celebrationEffects.sparkle = sparkle;
     }
-  } else if (isActuallyOvertaking && ((_l = (_k = config.animations) == null ? void 0 : _k.effects) == null ? void 0 : _l.overtakeHighlight)) {
-    const overtakeColor = overtakeIntensity > 3 ? "#FF6B6B" : "#00FF00";
-    const pulseIntensity = createPulseAnimation(frame, fps, 0, 0.3, 2);
-    barColor = interpolateColor(Math.abs(pulseIntensity), baseColor, overtakeColor);
-    if (overtakeIntensity > 3 && ((_n = (_m = config.animations) == null ? void 0 : _m.celebrations) == null ? void 0 : _n.enabled) !== false) {
-      const burst = createBurstEffect(frame, fps, 0.8, 0.6);
-      celebrationEffects.burst = burst;
-    }
+    return this.props.children;
   }
-  const labelPadding = 10;
-  const valueWidth = 100;
-  const titleX = config.labels.title.position === "inside" ? labelPadding : Math.max(animatedWidth + labelPadding, labelPadding);
-  const entryConfig = ((_o = config.animations) == null ? void 0 : _o.entry) || { effect: "fade", duration: 0.5, delay: index * 0.1 };
-  const entryAnimation = createRevealAnimation(
-    frame,
-    fps,
-    entryConfig.effect,
-    entryConfig.duration,
-    entryConfig.delay
-  );
-  const fadeInFrames = 5;
-  const baseOpacity = (0,esm.interpolate)(
-    frame,
-    [0, fadeInFrames],
-    [0, 1],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp"
-    }
-  );
-  const opacity = baseOpacity * entryAnimation.opacity;
-  const shakeOffset = (isNewRecord || isOvertaking) && ((_q = (_p = config.animations) == null ? void 0 : _p.effects) == null ? void 0 : _q.shake) ? createShakeAnimation(frame, fps, isNewRecord ? 8 : 4, 0.5) : { x: 0, y: 0 };
-  const pulseScale = (isNewRecord || isOvertaking) && ((_s = (_r = config.animations) == null ? void 0 : _r.effects) == null ? void 0 : _s.pulse) ? createPulseAnimation(frame, fps, 1, isNewRecord ? 0.1 : 0.05, 2) : 1;
-  return /* @__PURE__ */ (0,jsx_runtime.jsxs)(
-    "div",
+}
+function withErrorBoundary(Component2, fallback, onError) {
+  return React.forwardRef((props, ref) => /* @__PURE__ */ jsx(ErrorBoundary, { fallback, onError, children: /* @__PURE__ */ jsx(Component2, { ...props, ref }) }));
+}
+const DataErrorBoundary = ({
+  children,
+  dataSource
+}) => {
+  const handleError = (error, errorInfo) => {
+    console.error(`Data processing error${dataSource ? ` from ${dataSource}` : ""}:`, error);
+    console.error("Error info:", errorInfo);
+  };
+  const fallback = /* @__PURE__ */ (0,jsx_runtime.jsxs)(
+    esm.AbsoluteFill,
     {
       style: {
-        position: "absolute",
-        left: shakeOffset.x + xOffset,
-        top: yPosition + shakeOffset.y,
-        width: containerWidth,
-        height: itemHeight,
-        opacity,
-        transform: `${entryAnimation.transform} scale(${pulseScale * overtakeEffects.glow.glowScale})`,
-        transition: config.animation.type === "continuous" ? "none" : "all 0.3s ease-in-out",
-        zIndex: isNewRecord ? 150 : overtakeEffects.zIndex,
-        filter: overtakeEffects.glow.shadowBlur > 0 ? `drop-shadow(0 0 ${overtakeEffects.glow.shadowBlur}px ${overtakeEffects.glow.shadowColor})` : "none"
+        backgroundColor: "#1a1a1a",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 40,
+        color: "#ffffff",
+        fontFamily: "Arial, sans-serif"
       },
       children: [
         /* @__PURE__ */ (0,jsx_runtime.jsxs)(
           "div",
           {
             style: {
-              position: "absolute",
-              left: 0,
-              top: 0,
-              width: animatedWidth,
-              height: itemHeight,
-              background: ((_u = (_t = config.animations) == null ? void 0 : _t.effects) == null ? void 0 : _u.gradient) && (isNewRecord || isActuallyOvertaking) ? `linear-gradient(45deg, ${barColor}, ${barColor}88, ${barColor})` : barColor,
-              borderRadius: config.bar.cornerRadius,
-              opacity: config.bar.opacity / 100 * (1 - overtakeEffects.trailOpacity * 0.3),
-              boxShadow: isNewRecord ? `0 0 20px ${barColor}, 0 4px 16px rgba(0, 0, 0, 0.2)` : isActuallyOvertaking ? `0 0 12px ${barColor}66, 0 2px 12px rgba(0, 0, 0, 0.15)` : "0 2px 8px rgba(0, 0, 0, 0.1)",
-              transition: "box-shadow 0.3s ease-in-out"
+              backgroundColor: "#f57c00",
+              padding: "20px 30px",
+              borderRadius: 8,
+              marginBottom: 20,
+              textAlign: "center",
+              maxWidth: "80%"
             },
             children: [
-              (isNewRecord || isActuallyOvertaking) && ((_w = (_v = config.animations) == null ? void 0 : _v.effects) == null ? void 0 : _w.shimmer) && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-                "div",
-                {
-                  style: {
-                    position: "absolute",
-                    top: 0,
-                    left: -100,
-                    width: "100px",
-                    height: "100%",
-                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                    transform: `translateX(${animatedWidth + 100}px)`,
-                    transition: "transform 0.8s ease-in-out"
-                  }
-                }
-              ),
-              celebrationEffects.sparkle && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-                "div",
-                {
-                  style: {
-                    position: "absolute",
-                    top: "50%",
-                    left: "90%",
-                    transform: `translate(-50%, -50%) scale(${celebrationEffects.sparkle.scale})`,
-                    width: 40,
-                    height: 40,
-                    opacity: celebrationEffects.sparkle.opacity,
-                    filter: `blur(${celebrationEffects.sparkle.blur}px)`,
-                    pointerEvents: "none"
-                  },
-                  children: /* @__PURE__ */ (0,jsx_runtime.jsx)("svg", { width: "40", height: "40", viewBox: "0 0 40 40", children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
-                    "path",
-                    {
-                      d: "M20,1 L25,15 L39,15 L27,25 L32,39 L20,29 L8,39 L13,25 L1,15 L15,15 Z",
-                      fill: "#FFD700",
-                      opacity: "0.8"
-                    }
-                  ) })
-                }
-              ),
-              celebrationEffects.burst && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-                "div",
-                {
-                  style: {
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: `translate(-50%, -50%) scale(${celebrationEffects.burst.scale})`,
-                    width: 60,
-                    height: 60,
-                    opacity: celebrationEffects.burst.opacity,
-                    pointerEvents: "none"
-                  },
-                  children: /* @__PURE__ */ (0,jsx_runtime.jsx)("svg", { width: "60", height: "60", viewBox: "0 0 60 60", children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
-                    "circle",
-                    {
-                      cx: "30",
-                      cy: "30",
-                      r: "25",
-                      fill: "none",
-                      stroke: "#FF6B6B",
-                      strokeWidth: celebrationEffects.burst.strokeWidth
-                    }
-                  ) })
-                }
-              )
+              /* @__PURE__ */ (0,jsx_runtime.jsx)("h2", { style: { margin: 0, marginBottom: 10, fontSize: 28 }, children: "Data Processing Error" }),
+              /* @__PURE__ */ (0,jsx_runtime.jsx)("p", { style: { margin: 0, fontSize: 16, opacity: 0.9 }, children: dataSource ? `Failed to process data from ${dataSource}` : "Failed to process chart data" })
             ]
           }
         ),
-        ((_x = config.images) == null ? void 0 : _x.show) && item.image && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              left: labelPadding,
-              top: (itemHeight - config.images.size) / 2,
-              width: config.images.size,
-              height: config.images.size,
-              borderRadius: config.images.borderRadius,
-              overflow: "hidden",
-              zIndex: 2
-            },
-            children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
-              esm.Img,
-              {
-                src: item.image,
-                style: {
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover"
-                }
-              }
-            )
-          }
-        ),
-        config.labels.rank.show && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              left: ((_y = config.images) == null ? void 0 : _y.show) ? config.images.size + labelPadding * 2 : labelPadding,
-              top: (itemHeight - config.labels.rank.fontSize * 1.2) / 2,
-              width: config.labels.rank.fontSize * 1.5,
-              height: config.labels.rank.fontSize * 1.2,
-              backgroundColor: config.labels.rank.backgroundColor,
-              color: config.labels.rank.textColor,
-              borderRadius: 4,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: config.labels.rank.fontSize,
-              fontWeight: "bold",
-              zIndex: 2
-            },
-            children: item.rank
-          }
-        ),
-        config.labels.title.show && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              left: titleX + (((_z = config.images) == null ? void 0 : _z.show) ? config.images.size + labelPadding : 0) + (config.labels.rank.show ? config.labels.rank.fontSize * 1.5 + labelPadding : 0),
-              top: (itemHeight - config.labels.title.fontSize * 1.2) / 2,
-              fontSize: config.labels.title.fontSize,
-              fontFamily: config.labels.title.fontFamily,
-              color: config.labels.title.color,
-              fontWeight: "600",
-              maxWidth: containerWidth - titleX - valueWidth - labelPadding * 3,
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-              zIndex: 2,
-              textShadow: config.labels.title.position === "inside" ? "1px 1px 2px rgba(0,0,0,0.5)" : "none"
-            },
-            children: item.name
-          }
-        ),
-        config.labels.value.show && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              right: labelPadding,
-              top: (itemHeight - config.labels.value.fontSize * 1.2) / 2,
-              fontSize: config.labels.value.fontSize,
-              fontFamily: config.labels.value.fontFamily,
-              color: config.labels.value.color,
-              fontWeight: "600",
-              textAlign: "right",
-              minWidth: valueWidth,
-              zIndex: 2,
-              textShadow: "1px 1px 2px rgba(0,0,0,0.5)"
-            },
-            children: formatValue(
-              item.value,
-              config.labels.value.format,
-              config.labels.value.prefix,
-              config.labels.value.suffix
-            )
-          }
-        )
+        /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { style: { textAlign: "center", color: "#cccccc" }, children: [
+          /* @__PURE__ */ (0,jsx_runtime.jsx)("p", { style: { margin: 0, fontSize: 16, marginBottom: 10 }, children: "Please check:" }),
+          /* @__PURE__ */ (0,jsx_runtime.jsxs)("ul", { style: { textAlign: "left", fontSize: 14, lineHeight: 1.5 }, children: [
+            /* @__PURE__ */ (0,jsx_runtime.jsx)("li", { children: "CSV file format and structure" }),
+            /* @__PURE__ */ (0,jsx_runtime.jsx)("li", { children: "Date column format matches configuration" }),
+            /* @__PURE__ */ (0,jsx_runtime.jsx)("li", { children: "Value columns contain numeric data" }),
+            /* @__PURE__ */ (0,jsx_runtime.jsx)("li", { children: "File paths are correct and accessible" })
+          ] })
+        ] })
       ]
     }
   );
-};
-
-;// ./src/ChartLayer.tsx
-
-
-
-
-
-const ChartLayer = ({
-  config,
-  data,
-  frame,
-  fps
-}) => {
-  const { width: videoWidth, height: videoHeight } = (0,esm.useVideoConfig)();
-  const { width: containerWidth, height: containerHeight } = calculateContainerDimensions(
-    config,
-    videoWidth,
-    videoHeight
-  );
-  const maxValue = getMaxValue(data, config.chart.maxValue);
-  const sortedItems = [...data.items].sort((a, b) => b.value - a.value).slice(0, config.chart.visibleItemCount);
-  generateColors(sortedItems.length, config.bar.colors);
-  return /* @__PURE__ */ (0,jsx_runtime.jsxs)(
-    "div",
-    {
-      style: {
-        position: "absolute",
-        top: config.position.top,
-        left: config.position.left,
-        width: containerWidth,
-        height: containerHeight,
-        overflow: "hidden"
-      },
-      children: [
-        sortedItems.map((item, index) => /* @__PURE__ */ (0,jsx_runtime.jsx)(
-          BarItem,
-          {
-            item,
-            index,
-            config,
-            maxValue,
-            containerWidth,
-            containerHeight,
-            totalItems: sortedItems.length
-          },
-          item.id
-        )),
-        config.chart.maxValue === "global" && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              zIndex: 0
-            },
-            children: [0.25, 0.5, 0.75, 1].map((percentage) => /* @__PURE__ */ (0,jsx_runtime.jsx)(
-              "div",
-              {
-                style: {
-                  position: "absolute",
-                  left: `${percentage * 100}%`,
-                  top: 0,
-                  width: 1,
-                  height: "100%",
-                  backgroundColor: "rgba(255, 255, 255, 0.1)"
-                }
-              },
-              percentage
-            ))
-          }
-        )
-      ]
-    }
-  );
+  return /* @__PURE__ */ (0,jsx_runtime.jsx)(ErrorBoundary, { fallback, onError: handleError, children });
 };
 
 ;// ./src/BarChartRace.tsx
@@ -30652,19 +30229,23 @@ const barChartRaceSchema = lib.z.object({
     })
   }),
   processedData: lib.z.object({
-    frames: lib.z.array(lib.z.object({
-      frame: lib.z.number(),
-      date: lib.z.string(),
-      items: lib.z.array(lib.z.object({
-        id: lib.z.string(),
-        name: lib.z.string(),
-        value: lib.z.number(),
-        rank: lib.z.number(),
-        color: lib.z.string().optional(),
-        image: lib.z.string().optional()
-      })),
-      maxValue: lib.z.number()
-    })),
+    frames: lib.z.array(
+      lib.z.object({
+        frame: lib.z.number(),
+        date: lib.z.string(),
+        items: lib.z.array(
+          lib.z.object({
+            id: lib.z.string(),
+            name: lib.z.string(),
+            value: lib.z.number(),
+            rank: lib.z.number(),
+            color: lib.z.string().optional(),
+            image: lib.z.string().optional()
+          })
+        ),
+        maxValue: lib.z.number()
+      })
+    ),
     totalFrames: lib.z.number(),
     dateRange: lib.z.object({
       start: lib.z.string(),
@@ -30672,26 +30253,567 @@ const barChartRaceSchema = lib.z.object({
     }),
     valueColumns: lib.z.array(lib.z.string()),
     globalMaxValue: lib.z.number()
-  })
+  }).optional()
 });
-function BarChartRace_getFrameData(processedData, frame) {
-  if (!processedData || !processedData.frames || processedData.frames.length === 0) {
-    throw new Error("Invalid processed data");
+const DEFAULT_COLORS = [
+  "#FF6B6B",
+  "#4ECDC4",
+  "#45B7D1",
+  "#96CEB4",
+  "#FFEAA7",
+  "#DDA0DD",
+  "#98D8C8",
+  "#F7DC6F",
+  "#BB8FCE",
+  "#85C1E9",
+  "#F8C471",
+  "#82E0AA",
+  "#F1948A",
+  "#85C1E9",
+  "#D2B4DE"
+];
+function generateColors(itemCount, colorConfig) {
+  if (colorConfig === "auto") {
+    const colors = [];
+    for (let i = 0; i < itemCount; i++) {
+      colors.push(DEFAULT_COLORS[i % DEFAULT_COLORS.length]);
+    }
+    return colors;
+  }
+  return colorConfig;
+}
+function getItemColor(item, colors, index) {
+  if (item.color) return item.color;
+  return colors[index % colors.length];
+}
+function getMaxValue(data, maxValueType, globalMax) {
+  if (maxValueType === "global" && globalMax) {
+    return globalMax;
+  }
+  return data.maxValue;
+}
+function formatValue(value, format, prefix, suffix) {
+  let formatted = value.toLocaleString();
+  if (format.includes(":,.0f")) {
+    formatted = Math.round(value).toLocaleString();
+  } else if (format.includes(":.2f")) {
+    formatted = value.toFixed(2);
+  } else if (format.includes(".2f}M")) {
+    formatted = (value / 1e6).toFixed(2) + "M";
+  } else if (format.includes(".1f}K")) {
+    formatted = (value / 1e3).toFixed(1) + "K";
+  }
+  return `${prefix || ""}${formatted}${suffix || ""}`;
+}
+function calculateContainerDimensions(config, videoWidth, videoHeight) {
+  const width = videoWidth - config.position.left - config.position.right;
+  const height = videoHeight - config.position.top - config.position.bottom;
+  return { width: Math.max(0, width), height: Math.max(0, height) };
+}
+function calculateItemHeight(containerHeight, visibleItemCount, itemSpacing) {
+  const totalSpacing = (visibleItemCount - 1) * itemSpacing;
+  const availableHeight = containerHeight - totalSpacing;
+  return Math.max(20, availableHeight / visibleItemCount);
+}
+function getFrameData(processedData, frame) {
+  if (!processedData) {
+    throw new Error("ProcessedData is required");
+  }
+  if (!processedData.frames || !Array.isArray(processedData.frames)) {
+    throw new Error("ProcessedData.frames must be an array");
+  }
+  if (processedData.frames.length === 0) {
+    throw new Error("ProcessedData.frames cannot be empty");
+  }
+  if (typeof frame !== "number" || isNaN(frame)) {
+    throw new Error("Frame must be a valid number");
   }
   const clampedFrame = Math.max(0, Math.min(frame, processedData.frames.length - 1));
   const frameData = processedData.frames[clampedFrame];
   if (!frameData) {
     throw new Error(`Frame data not found for frame ${clampedFrame}`);
   }
+  if (!frameData.hasOwnProperty("frame")) {
+    frameData.frame = clampedFrame;
+  }
+  if (!frameData.hasOwnProperty("items")) {
+    frameData.items = [];
+  }
+  if (!frameData.hasOwnProperty("maxValue")) {
+    frameData.maxValue = frameData.items.length > 0 ? Math.max(...frameData.items.map((item) => item.value || 0)) : 0;
+  }
+  if (!frameData.hasOwnProperty("date")) {
+    frameData.date = (/* @__PURE__ */ new Date()).toISOString();
+  }
   return frameData;
 }
+function getFrameDataWithRemotionInterpolation(rawData, frame, totalFrames, visibleItemCount = 10) {
+  if (!rawData || !rawData.dataPoints || rawData.dataPoints.length === 0) {
+    return {
+      frame,
+      date: (/* @__PURE__ */ new Date()).toISOString(),
+      items: [],
+      maxValue: 0
+    };
+  }
+  const { dataPoints, dateRange, valueColumns, globalMaxValue } = rawData;
+  const startTime = dateRange.start.getTime();
+  const endTime = dateRange.end.getTime();
+  const currentTime = (0,esm.interpolate)(
+    frame,
+    [0, totalFrames - 1],
+    [startTime, endTime],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp"
+    }
+  );
+  let beforePoint = null;
+  let afterPoint = null;
+  for (let i = 0; i < dataPoints.length; i++) {
+    const point = dataPoints[i];
+    if (point.date <= currentTime) {
+      beforePoint = point;
+    }
+    if (point.date >= currentTime && !afterPoint) {
+      afterPoint = point;
+      break;
+    }
+  }
+  if (!beforePoint) beforePoint = dataPoints[0];
+  if (!afterPoint) afterPoint = dataPoints[dataPoints.length - 1];
+  const items = [];
+  let frameMaxValue = 0;
+  valueColumns.forEach((column, index) => {
+    const beforeValue = (beforePoint == null ? void 0 : beforePoint.values[column]) || 0;
+    const afterValue = (afterPoint == null ? void 0 : afterPoint.values[column]) || 0;
+    let interpolatedValue;
+    if (beforePoint === afterPoint) {
+      interpolatedValue = beforeValue;
+    } else {
+      interpolatedValue = (0,esm.interpolate)(
+        currentTime,
+        [beforePoint.date, afterPoint.date],
+        [beforeValue, afterValue],
+        {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp"
+        }
+      );
+    }
+    frameMaxValue = Math.max(frameMaxValue, interpolatedValue);
+    items.push({
+      id: column.toLowerCase().replace(/[^a-z0-9]/g, ""),
+      name: column,
+      value: Math.max(0, interpolatedValue),
+      rank: 0,
+      // Will be calculated after sorting
+      color: DEFAULT_COLORS[index % DEFAULT_COLORS.length]
+    });
+  });
+  items.sort((a, b) => b.value - a.value);
+  items.forEach((item, index) => {
+    item.rank = index + 1;
+  });
+  const visibleItems = items.slice(0, visibleItemCount);
+  return {
+    frame,
+    date: new Date(currentTime).toISOString(),
+    items: visibleItems,
+    maxValue: frameMaxValue
+  };
+}
+const parseCSVToTimeSeries = (csvContent, config) => {
+  var _a, _b;
+  try {
+    const lines = csvContent.trim().split("\n");
+    if (lines.length < 2) {
+      throw new Error("CSV file must have at least a header and one data row");
+    }
+    const headers = lines[0].split(",");
+    console.log("CSV headers:", headers);
+    console.log("Looking for date column:", config.data.dateColumn);
+    console.log("Looking for value columns:", config.data.valueColumns);
+    const dateColumnIndex = headers.indexOf(config.data.dateColumn);
+    if (dateColumnIndex === -1) {
+      throw new Error(
+        `Date column '${config.data.dateColumn}' not found in headers: ${headers.join(", ")}`
+      );
+    }
+    const valueColumnIndices = config.data.valueColumns.map((col) => {
+      const index = headers.indexOf(col);
+      if (index === -1) {
+        console.warn(`Value column '${col}' not found in headers`);
+      }
+      return index;
+    });
+    const missingColumns = config.data.valueColumns.filter(
+      (col, idx) => valueColumnIndices[idx] === -1
+    );
+    if (missingColumns.length > 0) {
+      throw new Error(`Value columns not found: ${missingColumns.join(", ")}`);
+    }
+    const dataPoints = [];
+    let globalMaxValue = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(",");
+      const dateStr = values[dateColumnIndex];
+      let date;
+      if (config.data.dateFormat === "YYYY-MM") {
+        const [year, month] = dateStr.split("-");
+        date = new Date(parseInt(year), parseInt(month) - 1, 1);
+      } else {
+        date = new Date(dateStr);
+      }
+      const dataPoint = {
+        date: date.getTime(),
+        // Store as timestamp for easier interpolation
+        values: {}
+      };
+      config.data.valueColumns.forEach((column, idx) => {
+        const value = parseFloat(values[valueColumnIndices[idx]]) || 0;
+        dataPoint.values[column] = value;
+        globalMaxValue = Math.max(globalMaxValue, value);
+      });
+      dataPoints.push(dataPoint);
+    }
+    dataPoints.sort((a, b) => a.date - b.date);
+    return {
+      dataPoints,
+      dateRange: {
+        start: new Date(((_a = dataPoints[0]) == null ? void 0 : _a.date) || Date.now()),
+        end: new Date(((_b = dataPoints[dataPoints.length - 1]) == null ? void 0 : _b.date) || Date.now())
+      },
+      valueColumns: config.data.valueColumns,
+      globalMaxValue
+    };
+  } catch (error) {
+    console.error("Error parsing CSV data:", error);
+    throw new Error(
+      `Failed to parse CSV: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
+  }
+};
+const useDynamicData = (config, durationInFrames, fps) => {
+  var _a;
+  const [rawData, setRawData] = react.useState(null);
+  const [loading, setLoading] = react.useState(true);
+  react.useEffect(() => {
+    const loadRawData = async () => {
+      var _a2;
+      if (!((_a2 = config == null ? void 0 : config.data) == null ? void 0 : _a2.csvPath)) {
+        setLoading(false);
+        return;
+      }
+      try {
+        console.log(`Loading CSV data for: ${config.data.csvPath}`);
+        const { BuildTimeDataLoader } = await Promise.resolve(/* import() */).then(__webpack_require__.bind(__webpack_require__, 2422));
+        const loader = new BuildTimeDataLoader();
+        const csvContent = await loader.loadCSVContent(config.data.csvPath);
+        console.log(`Loaded CSV content, length: ${csvContent.length}`);
+        console.log(`CSV content preview: ${csvContent.substring(0, 200)}...`);
+        const rawTimeSeriesData = parseCSVToTimeSeries(csvContent, config);
+        console.log(
+          `Parsed ${rawTimeSeriesData.dataPoints.length} time series data points`
+        );
+        console.log(
+          "Raw data sample:",
+          rawTimeSeriesData.dataPoints.slice(0, 3)
+        );
+        setRawData(rawTimeSeriesData);
+      } catch (error) {
+        console.error("Failed to load CSV data:", error);
+        setRawData({
+          dataPoints: [],
+          dateRange: { start: /* @__PURE__ */ new Date(), end: /* @__PURE__ */ new Date() },
+          valueColumns: config.data.valueColumns || []
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadRawData();
+  }, [config, durationInFrames, fps]);
+  if (loading || !rawData) {
+    return {
+      frames: [],
+      totalFrames: durationInFrames,
+      dateRange: {
+        start: (/* @__PURE__ */ new Date()).toISOString(),
+        end: (/* @__PURE__ */ new Date()).toISOString()
+      },
+      valueColumns: ((_a = config == null ? void 0 : config.data) == null ? void 0 : _a.valueColumns) || [],
+      globalMaxValue: 0
+    };
+  }
+  return {
+    rawData,
+    // Pass raw time series data for interpolation
+    totalFrames: durationInFrames,
+    dateRange: {
+      start: rawData.dateRange.start.toISOString(),
+      end: rawData.dateRange.end.toISOString()
+    },
+    valueColumns: rawData.valueColumns,
+    globalMaxValue: rawData.globalMaxValue || 0
+  };
+};
+const BarItem = ({
+  item,
+  index,
+  config,
+  maxValue,
+  containerWidth,
+  containerHeight,
+  totalItems
+}) => {
+  var _a, _b, _c;
+  const frame = (0,esm.useCurrentFrame)();
+  const { fps } = (0,esm.useVideoConfig)();
+  const itemHeight = calculateItemHeight(containerHeight, config.chart.visibleItemCount, config.chart.itemSpacing);
+  const barWidth = item.value / maxValue * containerWidth;
+  const animatedWidth = (0,esm.spring)({
+    frame,
+    fps,
+    from: 0,
+    to: barWidth,
+    config: {
+      damping: 30,
+      stiffness: 100,
+      mass: 0.5
+    }
+  });
+  const yPosition = (0,esm.spring)({
+    frame,
+    fps,
+    from: index * (itemHeight + config.chart.itemSpacing),
+    to: (item.rank - 1) * (itemHeight + config.chart.itemSpacing),
+    config: {
+      damping: 30,
+      stiffness: 100,
+      mass: 0.5
+    }
+  });
+  const colors = config.bar.colors === "auto" ? [] : config.bar.colors;
+  const barColor = getItemColor(item, colors, index);
+  const labelPadding = 10;
+  const valueWidth = 100;
+  const titleX = config.labels.title.position === "inside" ? labelPadding : Math.max(animatedWidth + labelPadding, labelPadding);
+  const opacity = (0,esm.interpolate)(
+    frame,
+    [0, 5],
+    [0, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp"
+    }
+  );
+  return /* @__PURE__ */ (0,jsx_runtime.jsxs)(
+    "div",
+    {
+      style: {
+        position: "absolute",
+        left: 0,
+        top: yPosition,
+        width: containerWidth,
+        height: itemHeight,
+        opacity
+      },
+      children: [
+        /* @__PURE__ */ (0,jsx_runtime.jsx)(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: animatedWidth,
+              height: itemHeight,
+              backgroundColor: barColor,
+              borderRadius: config.bar.cornerRadius,
+              opacity: config.bar.opacity / 100,
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
+            }
+          }
+        ),
+        ((_a = config.images) == null ? void 0 : _a.show) && item.image && /* @__PURE__ */ (0,jsx_runtime.jsx)(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              left: labelPadding,
+              top: (itemHeight - config.images.size) / 2,
+              width: config.images.size,
+              height: config.images.size,
+              borderRadius: config.images.borderRadius,
+              overflow: "hidden",
+              zIndex: 2
+            },
+            children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
+              esm.Img,
+              {
+                src: item.image,
+                style: {
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover"
+                }
+              }
+            )
+          }
+        ),
+        config.labels.rank.show && /* @__PURE__ */ (0,jsx_runtime.jsx)(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              left: ((_b = config.images) == null ? void 0 : _b.show) ? config.images.size + labelPadding * 2 : labelPadding,
+              top: (itemHeight - config.labels.rank.fontSize * 1.2) / 2,
+              width: config.labels.rank.fontSize * 1.5,
+              height: config.labels.rank.fontSize * 1.2,
+              backgroundColor: config.labels.rank.backgroundColor,
+              color: config.labels.rank.textColor,
+              borderRadius: 4,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: config.labels.rank.fontSize,
+              fontWeight: "bold",
+              zIndex: 2
+            },
+            children: item.rank
+          }
+        ),
+        config.labels.title.show && /* @__PURE__ */ (0,jsx_runtime.jsx)(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              left: titleX + (((_c = config.images) == null ? void 0 : _c.show) ? config.images.size + labelPadding : 0) + (config.labels.rank.show ? config.labels.rank.fontSize * 1.5 + labelPadding : 0),
+              top: (itemHeight - config.labels.title.fontSize * 1.2) / 2,
+              fontSize: config.labels.title.fontSize,
+              fontFamily: config.labels.title.fontFamily,
+              color: config.labels.title.color,
+              fontWeight: "600",
+              maxWidth: containerWidth - titleX - valueWidth - labelPadding * 3,
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              zIndex: 2,
+              textShadow: config.labels.title.position === "inside" ? "1px 1px 2px rgba(0,0,0,0.5)" : "none"
+            },
+            children: item.name
+          }
+        ),
+        config.labels.value.show && /* @__PURE__ */ (0,jsx_runtime.jsx)(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              right: labelPadding,
+              top: (itemHeight - config.labels.value.fontSize * 1.2) / 2,
+              fontSize: config.labels.value.fontSize,
+              fontFamily: config.labels.value.fontFamily,
+              color: config.labels.value.color,
+              fontWeight: "600",
+              textAlign: "right",
+              minWidth: valueWidth,
+              zIndex: 2,
+              textShadow: "1px 1px 2px rgba(0,0,0,0.5)"
+            },
+            children: formatValue(
+              item.value,
+              config.labels.value.format,
+              config.labels.value.prefix,
+              config.labels.value.suffix
+            )
+          }
+        )
+      ]
+    }
+  );
+};
+const ChartLayer = ({
+  config,
+  data,
+  frame,
+  fps
+}) => {
+  const { width: videoWidth, height: videoHeight } = (0,esm.useVideoConfig)();
+  const { width: containerWidth, height: containerHeight } = calculateContainerDimensions(
+    config,
+    videoWidth,
+    videoHeight
+  );
+  const maxValue = getMaxValue(data, config.chart.maxValue);
+  const sortedItems = [...data.items].sort((a, b) => b.value - a.value).slice(0, config.chart.visibleItemCount);
+  generateColors(sortedItems.length, config.bar.colors);
+  return /* @__PURE__ */ (0,jsx_runtime.jsxs)(
+    "div",
+    {
+      style: {
+        position: "absolute",
+        top: config.position.top,
+        left: config.position.left,
+        width: containerWidth,
+        height: containerHeight,
+        overflow: "hidden"
+      },
+      children: [
+        sortedItems.map((item, index) => /* @__PURE__ */ (0,jsx_runtime.jsx)(
+          BarItem,
+          {
+            item,
+            index,
+            config,
+            maxValue,
+            containerWidth,
+            containerHeight,
+            totalItems: sortedItems.length
+          },
+          item.id
+        )),
+        config.chart.maxValue === "global" && /* @__PURE__ */ (0,jsx_runtime.jsx)(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+              zIndex: 0
+            },
+            children: [0.25, 0.5, 0.75, 1].map((percentage) => /* @__PURE__ */ (0,jsx_runtime.jsx)(
+              "div",
+              {
+                style: {
+                  position: "absolute",
+                  left: `${percentage * 100}%`,
+                  top: 0,
+                  width: 1,
+                  height: "100%",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)"
+                }
+              },
+              percentage
+            ))
+          }
+        )
+      ]
+    }
+  );
+};
 const BackgroundLayer = ({ config }) => {
+  const backgroundColor = config.color;
+  const opacity = config.opacity / 100;
   return /* @__PURE__ */ (0,jsx_runtime.jsx)(
     esm.AbsoluteFill,
     {
       style: {
-        backgroundColor: config.color,
-        opacity: config.opacity / 100
+        backgroundColor,
+        opacity
       },
       children: config.image && /* @__PURE__ */ (0,jsx_runtime.jsx)(
         esm.Img,
@@ -30708,45 +30830,65 @@ const BackgroundLayer = ({ config }) => {
     }
   );
 };
-const TitleLayer = ({ config, frame, fps }) => {
-  if (!config) return null;
+const TitleLayer = ({
+  config
+}) => {
+  const frame = (0,esm.useCurrentFrame)();
+  const { fps } = (0,esm.useVideoConfig)();
+  const { width: videoWidth } = (0,esm.useVideoConfig)();
   const startFrame = config.timeline.startTime * fps;
   const endFrame = startFrame + config.timeline.duration * fps;
-  if (frame < startFrame || frame > endFrame) return null;
-  return /* @__PURE__ */ (0,jsx_runtime.jsx)(
+  const isVisible = frame >= startFrame && frame <= endFrame;
+  if (!isVisible) return null;
+  let alignStyle = {};
+  switch (config.position.align) {
+    case "left":
+      alignStyle = { textAlign: "left", left: 0 };
+      break;
+    case "center":
+      alignStyle = { textAlign: "center", left: "50%", transform: "translateX(-50%)" };
+      break;
+    case "right":
+      alignStyle = { textAlign: "right", right: 0 };
+      break;
+  }
+  return /* @__PURE__ */ (0,jsx_runtime.jsx)(esm.AbsoluteFill, { children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
     "div",
     {
       style: {
         position: "absolute",
         top: config.position.top,
-        left: 0,
-        right: 0,
-        textAlign: config.position.align,
+        width: videoWidth,
         fontSize: config.style.fontSize,
         fontFamily: config.style.fontFamily,
         color: config.style.color,
         opacity: config.style.opacity / 100,
-        zIndex: 10
+        fontWeight: "bold",
+        zIndex: 10,
+        ...alignStyle
       },
       children: config.text
     }
-  );
+  ) });
 };
-const DateLayer = ({ config, currentDate, frame, fps }) => {
-  if (!config) return null;
-  const formatDate = (dateStr) => {
-    try {
-      const date = new Date(dateStr);
+const DateLayer = ({
+  config,
+  currentDate
+}) => {
+  const formatDate = (dateStr, pattern) => {
+    const date = new Date(dateStr);
+    if (pattern === "MMMM YYYY") {
       return date.toLocaleDateString(config.format.locale, {
-        year: "numeric",
-        month: config.format.pattern.includes("MMMM") ? "long" : "short",
-        day: config.format.pattern.includes("DD") ? "2-digit" : void 0
+        month: "long",
+        year: "numeric"
       });
-    } catch {
-      return currentDate;
+    } else if (pattern === "YYYY-MM-DD") {
+      return date.toLocaleDateString(config.format.locale);
     }
+    return dateStr;
   };
-  return /* @__PURE__ */ (0,jsx_runtime.jsx)(
+  const formattedDate = formatDate(currentDate, config.format.pattern);
+  return /* @__PURE__ */ (0,jsx_runtime.jsx)(esm.AbsoluteFill, { children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
     "div",
     {
       style: {
@@ -30757,50 +30899,119 @@ const DateLayer = ({ config, currentDate, frame, fps }) => {
         fontFamily: config.style.fontFamily,
         color: config.style.color,
         opacity: config.style.opacity / 100,
+        fontWeight: "bold",
         zIndex: 10
       },
-      children: formatDate(currentDate)
+      children: formattedDate
     }
-  );
+  ) });
 };
-const BarChartRaceComposition = ({
-  config,
-  processedData
-}) => {
-  const frame = (0,esm.useCurrentFrame)();
-  const { fps } = (0,esm.useVideoConfig)();
-  if (!config || !processedData) {
-    return /* @__PURE__ */ (0,jsx_runtime.jsx)(esm.AbsoluteFill, { style: { backgroundColor: "#000", color: "#fff", padding: 20 }, children: /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { children: "Error: Missing configuration or processed data" }) });
+const BarChartRaceCompositionInner = ({ config, processedData, frame, fps }) => {
+  var _a, _b, _c, _d;
+  if (!config) {
+    throw new Error("Configuration is required");
+  }
+  if (!processedData) {
+    return /* @__PURE__ */ (0,jsx_runtime.jsx)(
+      esm.AbsoluteFill,
+      {
+        style: {
+          backgroundColor: config.layers.background.color,
+          justifyContent: "center",
+          alignItems: "center",
+          color: "white",
+          fontSize: 24
+        },
+        children: "Loading data..."
+      }
+    );
+  }
+  if (processedData && !processedData.rawData && (!processedData.frames || processedData.frames.length === 0)) {
+    return /* @__PURE__ */ (0,jsx_runtime.jsx)(
+      esm.AbsoluteFill,
+      {
+        style: {
+          backgroundColor: config.layers.background.color,
+          justifyContent: "center",
+          alignItems: "center",
+          color: "white",
+          fontSize: 24
+        },
+        children: "Loading CSV data..."
+      }
+    );
   }
   let currentData;
   try {
-    currentData = BarChartRace_getFrameData(processedData, frame);
+    if (processedData.rawData) {
+      currentData = getFrameDataWithRemotionInterpolation(
+        processedData.rawData,
+        frame,
+        processedData.totalFrames,
+        config.layers.chart.chart.visibleItemCount
+      );
+    } else if (processedData.frames && processedData.frames.length > 0) {
+      currentData = getFrameData(processedData, frame);
+    } else {
+      return /* @__PURE__ */ (0,jsx_runtime.jsx)(
+        esm.AbsoluteFill,
+        {
+          style: {
+            backgroundColor: config.layers.background.color,
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+            fontSize: 24
+          },
+          children: "No data available"
+        }
+      );
+    }
   } catch (error) {
-    return /* @__PURE__ */ (0,jsx_runtime.jsx)(esm.AbsoluteFill, { style: { backgroundColor: "#000", color: "#fff", padding: 20 }, children: /* @__PURE__ */ (0,jsx_runtime.jsxs)("div", { children: [
-      "Error: ",
-      error instanceof Error ? error.message : "Unknown error"
-    ] }) });
+    console.error("Error getting frame data:", error);
+    return /* @__PURE__ */ (0,jsx_runtime.jsxs)(
+      esm.AbsoluteFill,
+      {
+        style: {
+          backgroundColor: config.layers.background.color,
+          justifyContent: "center",
+          alignItems: "center",
+          color: "white",
+          fontSize: 24
+        },
+        children: [
+          "Data processing error:",
+          " ",
+          error instanceof Error ? error.message : "Unknown error"
+        ]
+      }
+    );
+  }
+  if (!currentData) {
+    console.warn(`No data available for frame ${frame}`);
+    currentData = {
+      frame,
+      date: (/* @__PURE__ */ new Date()).toISOString(),
+      items: [],
+      maxValue: 0
+    };
+  }
+  if (!currentData.items) {
+    currentData.items = [];
   }
   return /* @__PURE__ */ (0,jsx_runtime.jsxs)(esm.AbsoluteFill, { children: [
-    /* @__PURE__ */ (0,jsx_runtime.jsx)(BackgroundLayer, { config: config.layers.background }),
-    /* @__PURE__ */ (0,jsx_runtime.jsx)(
+    /* @__PURE__ */ (0,jsx_runtime.jsx)(ErrorBoundary, { fallback: /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { children: "Background layer error" }), children: /* @__PURE__ */ (0,jsx_runtime.jsx)(BackgroundLayer, { config: (_a = config.layers) == null ? void 0 : _a.background }) }),
+    /* @__PURE__ */ (0,jsx_runtime.jsx)(ErrorBoundary, { fallback: /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { children: "Chart layer error" }), children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
       ChartLayer,
       {
-        config: config.layers.chart,
+        config: (_b = config.layers) == null ? void 0 : _b.chart,
         data: currentData,
         frame,
         fps
       }
-    ),
-    config.layers.title && /* @__PURE__ */ (0,jsx_runtime.jsx)(
-      TitleLayer,
-      {
-        config: config.layers.title,
-        frame,
-        fps
-      }
-    ),
-    config.layers.date && /* @__PURE__ */ (0,jsx_runtime.jsx)(
+    ) }),
+    ((_c = config.layers) == null ? void 0 : _c.title) && /* @__PURE__ */ (0,jsx_runtime.jsx)(ErrorBoundary, { fallback: /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { children: "Title layer error" }), children: /* @__PURE__ */ (0,jsx_runtime.jsx)(TitleLayer, { config: config.layers.title, frame, fps }) }),
+    ((_d = config.layers) == null ? void 0 : _d.date) && /* @__PURE__ */ (0,jsx_runtime.jsx)(ErrorBoundary, { fallback: /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { children: "Date layer error" }), children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
       DateLayer,
       {
         config: config.layers.date,
@@ -30808,132 +31019,231 @@ const BarChartRaceComposition = ({
         frame,
         fps
       }
-    )
+    ) })
   ] });
 };
-const sampleConfig = {
-  output: {
-    filename: "bar-chart-race.mp4",
-    format: "mp4",
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    duration: 10,
-    quality: "high"
-  },
-  data: {
-    csvPath: "./sample-data.csv",
-    dateColumn: "Date",
-    dateFormat: "YYYY-MM-DD",
-    valueColumns: ["YouTube", "Netflix", "Disney+", "HBO Max", "Amazon Prime"],
-    interpolation: "smooth"
-  },
-  layers: {
-    background: {
-      color: "#1a1a2e",
-      opacity: 100
-    },
-    chart: {
-      position: {
-        top: 120,
-        right: 80,
-        bottom: 120,
-        left: 80
-      },
-      chart: {
-        visibleItemCount: 10,
-        maxValue: "local",
-        itemSpacing: 15
-      },
-      animation: {
-        type: "continuous",
-        overtakeDuration: 0.8
-      },
-      bar: {
-        colors: "auto",
-        cornerRadius: 8,
-        opacity: 90
-      },
-      labels: {
-        title: {
-          show: true,
-          fontSize: 22,
-          fontFamily: "Inter, Arial, sans-serif",
-          color: "#ffffff",
-          position: "outside"
-        },
-        value: {
-          show: true,
-          fontSize: 18,
-          fontFamily: "Inter, Arial, sans-serif",
-          color: "#ffffff",
-          format: "{value:,.0f}",
-          suffix: " subscribers"
-        },
-        rank: {
-          show: true,
-          fontSize: 16,
-          backgroundColor: "#0f3460",
-          textColor: "#ffffff"
-        }
-      }
-    },
-    title: {
-      text: "Top Streaming Platforms Race",
-      position: {
-        top: 40,
-        align: "center"
-      },
-      style: {
-        fontSize: 42,
-        fontFamily: "Inter, Arial, sans-serif",
-        color: "#ffffff",
-        opacity: 100
-      },
-      timeline: {
-        startTime: 0,
-        duration: 10
-      }
-    },
-    date: {
-      position: {
-        bottom: 40,
-        right: 80
-      },
-      format: {
-        pattern: "MMMM YYYY",
-        locale: "en-US"
-      },
-      style: {
-        fontSize: 28,
-        fontFamily: "Inter, Arial, sans-serif",
-        color: "#ffffff",
-        opacity: 85
-      },
-      animation: {
-        type: "continuous",
-        duration: 0.5
-      }
+const BarChartRaceComposition = ({
+  config,
+  processedData
+}) => {
+  var _a;
+  const frame = (0,esm.useCurrentFrame)();
+  const { fps, durationInFrames } = (0,esm.useVideoConfig)();
+  const dynamicData = useDynamicData(config, durationInFrames, fps);
+  const finalData = processedData || dynamicData;
+  return /* @__PURE__ */ (0,jsx_runtime.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0,jsx_runtime.jsx)(DataErrorBoundary, { dataSource: (_a = config == null ? void 0 : config.data) == null ? void 0 : _a.csvPath, children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
+    BarChartRaceCompositionInner,
+    {
+      config,
+      processedData: finalData,
+      frame,
+      fps
     }
-  }
+  ) }) });
+};
+
+// EXTERNAL MODULE: ./src/dataprocessor/BuildTimeDataLoader.ts
+var BuildTimeDataLoader = __webpack_require__(2422);
+;// ./src/Root.tsx
+
+
+
+
+
+
+
+const useDynamicCompositions = () => {
+  const [compositions, setCompositions] = react.useState([]);
+  const [loading, setLoading] = react.useState(true);
+  react.useEffect(() => {
+    const loadCompositions = async () => {
+      try {
+        console.log("Loading CSV files for dynamic compositions...");
+        const loader = new BuildTimeDataLoader.BuildTimeDataLoader();
+        const scanResult = await loader.scanCSVFiles();
+        console.log(`Found ${scanResult.validFiles} CSV files`);
+        const dynamicCompositions = [];
+        for (const csvMetadata of scanResult.csvFiles) {
+          const compositionId = `BarChartRace-${csvMetadata.filename.replace(/\.csv$/i, "")}`;
+          const displayName = csvMetadata.filename.replace(/\.csv$/i, "").split(/[-_]/).map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(" ") + " Race";
+          const getTemplateType = (filename) => {
+            const name = filename.toLowerCase();
+            if (name.includes("dramatic") || name.includes("extreme"))
+              return "gaming";
+            if (name.includes("business") || name.includes("sales"))
+              return "business";
+            if (name.includes("social") || name.includes("instagram"))
+              return "social";
+            if (name.includes("test") || name.includes("sample") || name.includes("demo"))
+              return "demo";
+            return "default";
+          };
+          const templateType = getTemplateType(csvMetadata.filename);
+          const getTemplateConfig = (type) => {
+            const baseConfig = {
+              output: {
+                filename: `${csvMetadata.filename.replace(/\.csv$/i, "")}.mp4`,
+                format: "mp4",
+                width: 1920,
+                height: 1080,
+                fps: 30,
+                duration: 10,
+                quality: "high"
+              },
+              data: {
+                csvPath: csvMetadata.filepath,
+                dateColumn: csvMetadata.dateColumn || "Date",
+                dateFormat: csvMetadata.estimatedDateFormat || "YYYY-MM",
+                valueColumns: csvMetadata.valueColumns,
+                interpolation: "smooth"
+              },
+              layers: {
+                background: { color: "#1a1a2e", opacity: 100 },
+                chart: {
+                  position: { top: 120, right: 80, bottom: 120, left: 80 },
+                  chart: {
+                    visibleItemCount: 10,
+                    maxValue: "local",
+                    itemSpacing: 15
+                  },
+                  animation: {
+                    type: "continuous",
+                    overtakeDuration: 0.8
+                  },
+                  bar: {
+                    colors: "auto",
+                    cornerRadius: 8,
+                    opacity: 90
+                  },
+                  labels: {
+                    title: {
+                      show: true,
+                      fontSize: 22,
+                      fontFamily: "Inter, Arial, sans-serif",
+                      color: "#ffffff",
+                      position: "outside"
+                    },
+                    value: {
+                      show: true,
+                      fontSize: 18,
+                      fontFamily: "Inter, Arial, sans-serif",
+                      color: "#ffffff",
+                      format: "{value:,.0f}"
+                    },
+                    rank: {
+                      show: true,
+                      fontSize: 16,
+                      backgroundColor: "#0f3460",
+                      textColor: "#ffffff"
+                    }
+                  }
+                },
+                title: {
+                  text: displayName,
+                  position: { top: 40, align: "center" },
+                  style: {
+                    fontSize: 42,
+                    fontFamily: "Inter, Arial, sans-serif",
+                    color: "#ffffff",
+                    opacity: 100
+                  },
+                  timeline: { startTime: 0, duration: 10 }
+                },
+                date: {
+                  position: { bottom: 40, right: 80 },
+                  format: { pattern: "MMMM YYYY", locale: "en-US" },
+                  style: {
+                    fontSize: 28,
+                    fontFamily: "Inter, Arial, sans-serif",
+                    color: "#ffffff",
+                    opacity: 85
+                  },
+                  animation: { type: "continuous", duration: 0.5 }
+                }
+              }
+            };
+            switch (type) {
+              case "gaming":
+                baseConfig.layers.background.color = "#8E44AD";
+                baseConfig.output.fps = 60;
+                baseConfig.output.duration = 20;
+                break;
+              case "business":
+                baseConfig.layers.background.color = "#2C3E50";
+                baseConfig.output.duration = 15;
+                break;
+              case "social":
+                baseConfig.output.width = 1080;
+                baseConfig.output.height = 1920;
+                baseConfig.output.duration = 30;
+                baseConfig.layers.background.color = "#FF6B6B";
+                break;
+            }
+            return baseConfig;
+          };
+          const config = getTemplateConfig(templateType);
+          dynamicCompositions.push({
+            id: compositionId,
+            displayName,
+            config,
+            csvFile: csvMetadata.filename,
+            durationInFrames: config.output.duration * config.output.fps,
+            fps: config.output.fps,
+            width: config.output.width,
+            height: config.output.height
+          });
+        }
+        setCompositions(dynamicCompositions);
+        console.log(
+          `Generated ${dynamicCompositions.length} dynamic compositions`
+        );
+      } catch (error) {
+        console.error("Failed to load dynamic compositions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCompositions();
+  }, []);
+  return { compositions, loading };
 };
 const RemotionRoot = () => {
-  return /* @__PURE__ */ (0,jsx_runtime.jsx)(jsx_runtime.Fragment, { children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
+  const { compositions, loading } = useDynamicCompositions();
+  if (loading) {
+    console.log("RemotionRoot: Loading compositions...");
+    return /* @__PURE__ */ (0,jsx_runtime.jsx)(jsx_runtime.Fragment, { children: /* @__PURE__ */ (0,jsx_runtime.jsx)(
+      esm.Composition,
+      {
+        id: "Loading",
+        component: () => /* @__PURE__ */ (0,jsx_runtime.jsx)("div", { children: "Loading compositions..." }),
+        durationInFrames: 30,
+        fps: 30,
+        width: 1920,
+        height: 1080
+      }
+    ) });
+  }
+  console.log(`RemotionRoot: Rendering ${compositions.length} compositions`);
+  console.log(compositions);
+  return /* @__PURE__ */ (0,jsx_runtime.jsx)(jsx_runtime.Fragment, { children: compositions.map((comp) => /* @__PURE__ */ (0,jsx_runtime.jsx)(
     esm.Composition,
     {
-      id: "BarChartRace",
+      id: comp.id,
       component: BarChartRaceComposition,
-      durationInFrames: 300,
-      fps: 30,
-      width: 1920,
-      height: 1080,
+      durationInFrames: comp.durationInFrames,
+      fps: comp.fps,
+      width: comp.width,
+      height: comp.height,
       schema: barChartRaceSchema,
       defaultProps: {
-        config: sampleConfig,
-        processedData: createSampleData()
+        config: comp.config
+        // NO processedData - let Remotion calculate frames dynamically!
       }
-    }
-  ) });
+    },
+    comp.id
+  )) });
 };
 
 ;// ./src/index.ts
