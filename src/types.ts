@@ -188,7 +188,7 @@ export interface TimeSeries {
 // Component props interfaces
 export interface BarChartRaceCompositionProps {
   config: BarChartRaceConfig;
-  processedData: ProcessedData;
+  processedData?: ProcessedData;
 }
 
 export interface ChartLayerProps {

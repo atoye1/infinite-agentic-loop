@@ -1,140 +1,242 @@
 import "./index.css";
+import React from "react";
 import { Composition } from "remotion";
-import { BarChartRaceComposition, barChartRaceSchema } from "./BarChartRaceComposition";
-import { createSampleData } from "./utils";
-import { BarChartRaceConfig } from "./types";
-import { z } from "zod";
+import {
+  BarChartRaceComposition,
+  barChartRaceSchema,
+} from "./BarChartRaceComposition";
+import { BuildTimeDataLoader } from "./dataprocessor/BuildTimeDataLoader";
 
-// Each <Composition> is an entry in the sidebar!
+// Dynamic Compositions Hook
+const useDynamicCompositions = () => {
+  const [compositions, setCompositions] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-// Sample configuration for development
-const sampleConfig: BarChartRaceConfig = {
-  output: {
-    filename: "bar-chart-race.mp4",
-    format: "mp4",
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    duration: 10,
-    quality: "high"
-  },
-  data: {
-    csvPath: "./sample-data.csv",
-    dateColumn: "Date",
-    dateFormat: "YYYY-MM-DD",
-    valueColumns: ["YouTube", "Netflix", "Disney+", "HBO Max", "Amazon Prime"],
-    interpolation: "smooth"
-  },
-  layers: {
-    background: {
-      color: "#1a1a2e",
-      opacity: 100
-    },
-    chart: {
-      position: {
-        top: 120,
-        right: 80,
-        bottom: 120,
-        left: 80
-      },
-      chart: {
-        visibleItemCount: 10,
-        maxValue: "local",
-        itemSpacing: 15
-      },
-      animation: {
-        type: "continuous",
-        overtakeDuration: 0.8
-      },
-      bar: {
-        colors: "auto",
-        cornerRadius: 8,
-        opacity: 90
-      },
-      labels: {
-        title: {
-          show: true,
-          fontSize: 22,
-          fontFamily: "Inter, Arial, sans-serif",
-          color: "#ffffff",
-          position: "outside"
-        },
-        value: {
-          show: true,
-          fontSize: 18,
-          fontFamily: "Inter, Arial, sans-serif",
-          color: "#ffffff",
-          format: "{value:,.0f}",
-          suffix: " subscribers"
-        },
-        rank: {
-          show: true,
-          fontSize: 16,
-          backgroundColor: "#0f3460",
-          textColor: "#ffffff"
+  React.useEffect(() => {
+    const loadCompositions = async () => {
+      try {
+        console.log("Loading CSV files for dynamic compositions...");
+
+        const loader = new BuildTimeDataLoader();
+        const scanResult = await loader.scanCSVFiles();
+
+        console.log(`Found ${scanResult.validFiles} CSV files`);
+
+        const dynamicCompositions = [];
+
+        for (const csvMetadata of scanResult.csvFiles) {
+          // Generate composition ID from filename
+          const compositionId = `BarChartRace-${csvMetadata.filename.replace(/\.csv$/i, "")}`;
+
+          // Generate display name
+          const displayName =
+            csvMetadata.filename
+              .replace(/\.csv$/i, "")
+              .split(/[-_]/)
+              .map(
+                (word) =>
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+              )
+              .join(" ") + " Race";
+
+          // Determine template type from filename
+          const getTemplateType = (filename: string) => {
+            const name = filename.toLowerCase();
+            if (name.includes("dramatic") || name.includes("extreme"))
+              return "gaming";
+            if (name.includes("business") || name.includes("sales"))
+              return "business";
+            if (name.includes("social") || name.includes("instagram"))
+              return "social";
+            if (
+              name.includes("test") ||
+              name.includes("sample") ||
+              name.includes("demo")
+            )
+              return "demo";
+            return "default";
+          };
+
+          const templateType = getTemplateType(csvMetadata.filename);
+
+          // Create base config based on template type
+          const getTemplateConfig = (type: string) => {
+            const baseConfig = {
+              output: {
+                filename: `${csvMetadata.filename.replace(/\.csv$/i, "")}.mp4`,
+                format: "mp4" as const,
+                width: 1920,
+                height: 1080,
+                fps: 30,
+                duration: 10,
+                quality: "high" as const,
+              },
+              data: {
+                csvPath: csvMetadata.filepath,
+                dateColumn: csvMetadata.dateColumn || "Date",
+                dateFormat: csvMetadata.estimatedDateFormat || "YYYY-MM",
+                valueColumns: csvMetadata.valueColumns,
+                interpolation: "smooth" as const,
+              },
+              layers: {
+                background: { color: "#1a1a2e", opacity: 100 },
+                chart: {
+                  position: { top: 120, right: 80, bottom: 120, left: 80 },
+                  chart: {
+                    visibleItemCount: 10,
+                    maxValue: "local" as const,
+                    itemSpacing: 15,
+                  },
+                  animation: {
+                    type: "continuous" as const,
+                    overtakeDuration: 0.8,
+                  },
+                  bar: {
+                    colors: "auto" as const,
+                    cornerRadius: 8,
+                    opacity: 90,
+                  },
+                  labels: {
+                    title: {
+                      show: true,
+                      fontSize: 22,
+                      fontFamily: "Inter, Arial, sans-serif",
+                      color: "#ffffff",
+                      position: "outside" as const,
+                    },
+                    value: {
+                      show: true,
+                      fontSize: 18,
+                      fontFamily: "Inter, Arial, sans-serif",
+                      color: "#ffffff",
+                      format: "{value:,.0f}",
+                    },
+                    rank: {
+                      show: true,
+                      fontSize: 16,
+                      backgroundColor: "#0f3460",
+                      textColor: "#ffffff",
+                    },
+                  },
+                },
+                title: {
+                  text: displayName,
+                  position: { top: 40, align: "center" as const },
+                  style: {
+                    fontSize: 42,
+                    fontFamily: "Inter, Arial, sans-serif",
+                    color: "#ffffff",
+                    opacity: 100,
+                  },
+                  timeline: { startTime: 0, duration: 10 },
+                },
+                date: {
+                  position: { bottom: 40, right: 80 },
+                  format: { pattern: "MMMM YYYY", locale: "en-US" },
+                  style: {
+                    fontSize: 28,
+                    fontFamily: "Inter, Arial, sans-serif",
+                    color: "#ffffff",
+                    opacity: 85,
+                  },
+                  animation: { type: "continuous" as const, duration: 0.5 },
+                },
+              },
+            };
+
+            // Template-specific customizations
+            switch (type) {
+              case "gaming":
+                baseConfig.layers.background.color = "#8E44AD";
+                baseConfig.output.fps = 60;
+                baseConfig.output.duration = 20;
+                break;
+              case "business":
+                baseConfig.layers.background.color = "#2C3E50";
+                baseConfig.output.duration = 15;
+                break;
+              case "social":
+                baseConfig.output.width = 1080;
+                baseConfig.output.height = 1920;
+                baseConfig.output.duration = 30;
+                baseConfig.layers.background.color = "#FF6B6B";
+                break;
+            }
+
+            return baseConfig;
+          };
+
+          const config = getTemplateConfig(templateType);
+
+          dynamicCompositions.push({
+            id: compositionId,
+            displayName,
+            config,
+            csvFile: csvMetadata.filename,
+            durationInFrames: config.output.duration * config.output.fps,
+            fps: config.output.fps,
+            width: config.output.width,
+            height: config.output.height,
+          });
         }
+
+        setCompositions(dynamicCompositions);
+        console.log(
+          `Generated ${dynamicCompositions.length} dynamic compositions`,
+        );
+      } catch (error) {
+        console.error("Failed to load dynamic compositions:", error);
+      } finally {
+        setLoading(false);
       }
-    },
-    title: {
-      text: "Top Streaming Platforms Race",
-      position: {
-        top: 40,
-        align: "center"
-      },
-      style: {
-        fontSize: 42,
-        fontFamily: "Inter, Arial, sans-serif",
-        color: "#ffffff",
-        opacity: 100
-      },
-      timeline: {
-        startTime: 0,
-        duration: 10
-      }
-    },
-    date: {
-      position: {
-        bottom: 40,
-        right: 80
-      },
-      format: {
-        pattern: "MMMM YYYY",
-        locale: "en-US"
-      },
-      style: {
-        fontSize: 28,
-        fontFamily: "Inter, Arial, sans-serif",
-        color: "#ffffff",
-        opacity: 85
-      },
-      animation: {
-        type: "continuous",
-        duration: 0.5
-      }
-    }
-  }
+    };
+
+    loadCompositions();
+  }, []);
+
+  return { compositions, loading };
 };
 
 export const RemotionRoot: React.FC = () => {
+  const { compositions, loading } = useDynamicCompositions();
+
+  if (loading) {
+    console.log("RemotionRoot: Loading compositions...");
+    // Return a single fallback composition while loading
+    return (
+      <>
+        <Composition
+          id="Loading"
+          component={() => <div>Loading compositions...</div>}
+          durationInFrames={30}
+          fps={30}
+          width={1920}
+          height={1080}
+        />
+      </>
+    );
+  }
+
+  console.log(`RemotionRoot: Rendering ${compositions.length} compositions`);
+  console.log(compositions);
   return (
     <>
-      <Composition
-        // You can take the "id" to render a video:
-        // npx remotion render src/index.ts <id> out/video.mp4
-        id="BarChartRace"
-        component={BarChartRaceComposition}
-        durationInFrames={300} // 10 seconds at 30fps
-        fps={30}
-        width={1920}
-        height={1080}
-        // You can override these props for each render:
-        // https://www.remotion.dev/docs/parametrized-rendering
-        schema={barChartRaceSchema}
-        defaultProps={{
-          config: sampleConfig,
-          processedData: createSampleData()
-        }}
-      />
+      {compositions.map((comp) => (
+        <Composition
+          key={comp.id}
+          id={comp.id}
+          component={BarChartRaceComposition as any}
+          durationInFrames={comp.durationInFrames}
+          fps={comp.fps}
+          width={comp.width}
+          height={comp.height}
+          schema={barChartRaceSchema}
+          defaultProps={{
+            config: comp.config,
+            // NO processedData - let Remotion calculate frames dynamically!
+          }}
+        />
+      ))}
     </>
   );
 };

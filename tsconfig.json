@@ -11,7 +11,9 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "downlevelIteration": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["remotion.config.ts", "node_modules"]
 }

@@ -2,7 +2,7 @@
  * Comprehensive error handling tests for the Bar Chart Race system
  */
 
-import { DataProcessor, DataProcessingError, ProcessingConfig } from '../DataProcessor';
+import { DataProcessor, DataProcessingError, ProcessingConfig } from '../dataprocessor/DataProcessor';
 import { ValidationUtils } from '../utils/ValidationUtils';
 import { validateProcessedData, safeGetFrameData } from '../utils';
 

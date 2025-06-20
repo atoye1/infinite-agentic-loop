@@ -1,6 +1,6 @@
 import { RenderPipeline, RenderConfig, RenderResult, RenderProgress } from './RenderPipeline';
 import { OutputManager, RenderMetadata } from './OutputManager';
-import { BatchConfigBuilder, ExampleConfigs } from './BatchConfig';
+import { BatchConfigBuilder, ExampleConfigs } from '../cli/BatchConfig';
 import { Composition } from '@remotion/renderer';
 
 type RenderHistoryEntry = RenderMetadata;

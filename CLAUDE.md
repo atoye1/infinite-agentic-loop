@@ -61,3 +61,26 @@ The infinite command implements sophisticated parallel agent coordination:
 - Parallel execution managed through Task tool with batch sizes optimized by count
 - Progressive sophistication strategy for infinite mode waves
 - Each iteration must be genuinely unique while maintaining spec compliance
+
+## Project Constraints and Notes
+
+- I dont need templating feature right now. do not implement this feature until i explicitly to do so
+
+## Tool Memories
+
+### Remotion.js Interpolation Guide
+- Official guide for `interpolate()` function in Remotion.js
+- Allows mapping a range of values to another using concise syntax
+- Key features:
+  - Supports fade-in/out effects
+  - Can interpolate over multiple points
+  - Works with time-based and custom animations
+  - Provides advanced options like `extrapolateLeft` and `extrapolateRight`
+  - Supports custom easing functions
+- Demonstrates usage with examples:
+  - Basic opacity interpolation
+  - Fade in and out effect
+  - Spring animation interpolation
+  - Controlling output range with extrapolation options
+- Available as a 6-minute video tutorial
+- Useful for creating dynamic animations in React-based video rendering

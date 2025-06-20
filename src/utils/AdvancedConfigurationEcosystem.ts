@@ -3,7 +3,7 @@ import { ProcessedData } from '../types/config'
 
 // Import all the advanced systems
 import { IndustryTemplates } from './IndustryTemplates'
-import { DynamicConfigGenerator, DataCharacteristics, ConfigGenerationOptions } from './DynamicConfigGenerator'
+import { ConfigGenerator as DynamicConfigGenerator } from '../config/ConfigGenerator'
 import { AdvancedThemeSystem, BrandProfile, ThemeDefinition } from './AdvancedThemeSystem'
 import { ConditionalConfigSystem, ConfigInheritanceSystem, ConfigInheritance } from './ConditionalConfigSystem'
 import { ABTestingSystem, ABTestVariant, VariantGenerationOptions } from './ABTestingSystem'

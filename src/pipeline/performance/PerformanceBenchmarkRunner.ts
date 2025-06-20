@@ -7,13 +7,13 @@ import { performance } from 'perf_hooks';
 import * as os from 'os';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { OptimizedDataProcessor } from '../OptimizedDataProcessor';
+import { OptimizedDataProcessor } from '../../dataprocessor/OptimizedDataProcessor';
 import { OptimizedRenderPipeline } from './OptimizedRenderPipeline';
 import { CacheManager } from './DataCache';
 import { PerformanceMonitor } from './PerformanceMonitor';
 import { PerformanceProfiler } from './PerformanceProfiler';
 import { PerformanceOptimizer } from './PerformanceOptimizer';
-import { ProcessingConfig } from '../DataProcessor';
+import { ProcessingConfig } from '../../dataprocessor/DataProcessor';
 import { RenderConfig } from '../RenderPipeline';
 
 export interface BenchmarkScenario {

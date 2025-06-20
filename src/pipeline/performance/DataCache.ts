@@ -4,7 +4,7 @@
  */
 
 import * as crypto from 'crypto';
-import { DataPoint, FrameData, ProcessingConfig } from '../DataProcessor';
+import { DataPoint, FrameData, ProcessingConfig } from '../../dataprocessor/DataProcessor';
 
 export interface CacheEntry<T> {
   key: string;

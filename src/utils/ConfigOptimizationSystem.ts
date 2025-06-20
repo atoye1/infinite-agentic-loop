@@ -1,5 +1,5 @@
 import { BarChartRaceConfig } from '../types/config'
-import { DataCharacteristics } from './DynamicConfigGenerator'
+import { DataCharacteristics } from '../config/ConfigGenerator'
 import { AccessibilityAudit } from './AccessibilitySystem'
 
 export interface OptimizationRecommendation {

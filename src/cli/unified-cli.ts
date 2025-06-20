@@ -11,7 +11,14 @@
  */
 
 import { program } from 'commander';
-import { chalk } from './utils/CoreUtils';
+// Simple color utility (instead of importing chalk)
+const chalk = {
+  green: (text: string) => `\x1b[32m${text}\x1b[0m`,
+  red: (text: string) => `\x1b[31m${text}\x1b[0m`,
+  yellow: (text: string) => `\x1b[33m${text}\x1b[0m`,
+  blue: (text: string) => `\x1b[34m${text}\x1b[0m`,
+  bold: (text: string) => `\x1b[1m${text}\x1b[0m`
+};
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 

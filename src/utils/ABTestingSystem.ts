@@ -1,5 +1,5 @@
 import { BarChartRaceConfig } from '../types/config'
-import { DataCharacteristics } from './DynamicConfigGenerator'
+import { DataCharacteristics } from '../config/ConfigGenerator'
 
 export interface ABTestVariant {
   id: string

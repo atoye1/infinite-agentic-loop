@@ -2,10 +2,10 @@
  * Integration tests for the rendering pipeline
  */
 
-import { RenderPipeline } from '../RenderPipeline';
-import { OutputManager } from '../OutputManager';
-import { BatchConfigBuilder, ExampleConfigs } from '../BatchConfig';
-import { BarChartRaceRenderer } from '../BarChartRaceRenderer';
+import { RenderPipeline } from '../pipeline/RenderPipeline';
+import { OutputManager } from '../pipeline/OutputManager';
+import { BatchConfigBuilder, ExampleConfigs } from '../cli/BatchConfig';
+import { BarChartRaceRenderer } from '../pipeline/BarChartRaceRenderer';
 import { existsSync, promises as fs } from 'fs';
 import * as path from 'path';
 

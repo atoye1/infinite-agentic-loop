@@ -2,7 +2,7 @@
  * Unit tests for DataProcessor
  */
 
-import { DataProcessor, ProcessingConfig, DataProcessingError } from '../DataProcessor';
+import { DataProcessor, ProcessingConfig, DataProcessingError } from '../dataprocessor/DataProcessor';
 import { ProcessedData, FrameData } from '../types';
 
 describe('DataProcessor', () => {

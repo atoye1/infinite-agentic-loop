@@ -1,4 +1,5 @@
 import { DataItem, FrameData, ProcessedData, ChartLayerConfig } from './types';
+import { interpolate } from 'remotion';
 
 // Color palette for auto-generating colors
 const DEFAULT_COLORS = [
@@ -331,4 +332,110 @@ export function calculateItemHeight(
   const totalSpacing = (visibleItemCount - 1) * itemSpacing;
   const availableHeight = containerHeight - totalSpacing;
   return Math.max(20, availableHeight / visibleItemCount); // Minimum 20px height
+}
+
+// NEW: Get frame data using Remotion interpolation for real-time calculation
+export function getFrameDataWithRemotionInterpolation(
+  rawData: any, 
+  frame: number, 
+  totalFrames: number,
+  visibleItemCount: number = 10
+): FrameData {
+  if (!rawData || !rawData.dataPoints || rawData.dataPoints.length === 0) {
+    return {
+      frame,
+      date: new Date().toISOString(),
+      items: [],
+      maxValue: 0
+    };
+  }
+
+  const { dataPoints, dateRange, valueColumns, globalMaxValue } = rawData;
+  
+  // Calculate current time using Remotion interpolation
+  const startTime = dateRange.start.getTime();
+  const endTime = dateRange.end.getTime();
+  
+  // Use Remotion's interpolate function to map frame to timestamp
+  const currentTime = interpolate(
+    frame,
+    [0, totalFrames - 1],
+    [startTime, endTime],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp'
+    }
+  );
+  
+  // Find surrounding data points
+  let beforePoint = null;
+  let afterPoint = null;
+  
+  for (let i = 0; i < dataPoints.length; i++) {
+    const point = dataPoints[i];
+    if (point.date <= currentTime) {
+      beforePoint = point;
+    }
+    if (point.date >= currentTime && !afterPoint) {
+      afterPoint = point;
+      break;
+    }
+  }
+  
+  // If no surrounding points, use closest available
+  if (!beforePoint) beforePoint = dataPoints[0];
+  if (!afterPoint) afterPoint = dataPoints[dataPoints.length - 1];
+  
+  // Calculate interpolated values for each column using Remotion interpolate
+  const items: DataItem[] = [];
+  let frameMaxValue = 0;
+  
+  valueColumns.forEach((column: string, index: number) => {
+    const beforeValue = beforePoint?.values[column] || 0;
+    const afterValue = afterPoint?.values[column] || 0;
+    
+    let interpolatedValue: number;
+    
+    if (beforePoint === afterPoint) {
+      // Same time point
+      interpolatedValue = beforeValue;
+    } else {
+      // Use Remotion interpolate for smooth transitions
+      interpolatedValue = interpolate(
+        currentTime,
+        [beforePoint.date, afterPoint.date],
+        [beforeValue, afterValue],
+        {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp'
+        }
+      );
+    }
+    
+    frameMaxValue = Math.max(frameMaxValue, interpolatedValue);
+    
+    items.push({
+      id: column.toLowerCase().replace(/[^a-z0-9]/g, ''),
+      name: column,
+      value: Math.max(0, interpolatedValue),
+      rank: 0, // Will be calculated after sorting
+      color: DEFAULT_COLORS[index % DEFAULT_COLORS.length]
+    });
+  });
+  
+  // Sort by value and assign ranks
+  items.sort((a, b) => b.value - a.value);
+  items.forEach((item, index) => {
+    item.rank = index + 1;
+  });
+  
+  // Take only visible items
+  const visibleItems = items.slice(0, visibleItemCount);
+  
+  return {
+    frame,
+    date: new Date(currentTime).toISOString(),
+    items: visibleItems,
+    maxValue: frameMaxValue
+  };
 }

@@ -5,12 +5,14 @@
 
 import {
   BarChartRaceConfig,
-  ConfigValidator,
-  DataValidator,
-  ConfigTemplates,
-  ColorGenerator,
   ValidationResult
-} from '../index'
+} from '../types/config'
+import {
+  ConfigValidator,
+  ConfigTemplates
+} from '../config'
+import { DataValidator } from '../validation/DataValidator'
+import { ColorGenerator } from '../utils/ColorGenerator'
 
 // Example 1: Using ConfigValidator to validate a configuration
 export function validateConfigExample() {

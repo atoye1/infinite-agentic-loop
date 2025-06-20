@@ -6,37 +6,39 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@remotion/cli": "4.0.317",
     "@remotion/bundler": "4.0.317",
+    "@remotion/cli": "4.0.317",
     "@remotion/renderer": "4.0.317",
+    "@remotion/tailwind-v4": "4.0.317",
+    "commander": "^11.1.0",
+    "openai": "^5.5.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "4.0.317",
-    "@remotion/tailwind-v4": "4.0.317",
-    "tailwindcss": "4.0.0",
-    "commander": "^11.1.0"
+    "tailwindcss": "4.0.0"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "4.0.317",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^22.0.0",
     "@types/react": "19.0.0",
     "@types/web": "0.0.166",
-    "@types/node": "^22.0.0",
-    "@types/jest": "^29.5.0",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.0.0",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
-    "typescript": "5.8.2",
-    "tsx": "^4.7.0",
     "jest": "^29.5.0",
-    "ts-jest": "^29.1.0"
+    "prettier": "3.3.3",
+    "ts-jest": "^29.1.0",
+    "tsx": "^4.7.0",
+    "typescript": "5.8.2"
   },
   "bin": {
     "barchart-race": "./bin/barchart-race.js"
   },
   "scripts": {
-    "dev": "remotion studio",
-    "build": "remotion bundle",
+    "dev": "npm run generate:csv-manifest && remotion studio",
+    "build": "npm run generate:csv-manifest && remotion bundle",
+    "generate:csv-manifest": "node scripts/generate-csv-manifest.js",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
     "render": "npx tsx src/unified-cli.ts render",

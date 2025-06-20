@@ -1,7 +1,5 @@
-import { BarChartRaceConfig } from '../types/config'
-import { ProcessedData } from '../types/config'
-import { IndustryTemplates } from './IndustryTemplates'
-import { ConfigTemplates } from './ConfigTemplates'
+import { BarChartRaceConfig } from '../BarChartRace'
+import { ProcessedData } from '../BarChartRace'
 
 export interface DataCharacteristics {
   rowCount: number
@@ -36,7 +34,7 @@ export interface ConfigGenerationOptions {
   customRequirements?: Partial<BarChartRaceConfig>
 }
 
-export class DynamicConfigGenerator {
+export class ConfigGenerator {
   
   /**
    * Analyze data characteristics to inform configuration decisions
@@ -119,32 +117,90 @@ export class DynamicConfigGenerator {
   }
 
   private static selectBaseTemplate(options: ConfigGenerationOptions): BarChartRaceConfig {
-    // Select industry-specific template if available
-    if (options.industry) {
-      const industryTemplate = IndustryTemplates.getIndustryTemplate(options.industry)
-      if (industryTemplate) {
-        return industryTemplate
+    // For now, return a basic template since we're not implementing templating features
+    // This can be expanded later when templating is explicitly requested
+    return {
+      output: {
+        width: options.outputFormat === 'portrait' ? 1080 : options.outputFormat === 'square' ? 1080 : 1920,
+        height: options.outputFormat === 'portrait' ? 1920 : options.outputFormat === 'square' ? 1080 : 1080,
+        fps: 30,
+        duration: 60,
+        quality: 'high',
+        format: 'mp4'
+      },
+      layers: {
+        background: {
+          color: '#ffffff'
+        },
+        chart: {
+          position: {
+            top: 150,
+            bottom: 150,
+            left: 80,
+            right: 80
+          },
+          chart: {
+            visibleItemCount: 10,
+            itemSpacing: 20,
+            maxValue: 'global'
+          },
+          bar: {
+            cornerRadius: 8,
+            colors: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16']
+          },
+          labels: {
+            title: {
+              fontSize: 24,
+              color: '#1f2937',
+              show: true
+            },
+            value: {
+              fontSize: 20,
+              color: '#374151',
+              show: true,
+              format: '{value:,.0f}'
+            },
+            rank: {
+              fontSize: 16,
+              show: true,
+              textColor: '#ffffff',
+              backgroundColor: '#374151'
+            }
+          },
+          animation: {
+            type: 'continuous',
+            overtakeDuration: 0.6
+          }
+        },
+        title: {
+          text: 'Bar Chart Race',
+          position: {
+            top: 60
+          },
+          style: {
+            fontSize: 48,
+            color: '#1f2937',
+            fontWeight: 'bold'
+          }
+        },
+        date: {
+          format: {
+            pattern: 'YYYY-MM'
+          },
+          position: {
+            bottom: 60,
+            right: 80
+          },
+          style: {
+            fontSize: 32,
+            color: '#6b7280'
+          },
+          animation: {
+            duration: 0.5
+          }
+        }
       }
     }
-
-    // Select based on purpose and output format
-    if (options.purpose === 'social-media' || options.outputFormat === 'portrait') {
-      return ConfigTemplates.getSocialMediaConfig()
-    }
-    
-    if (options.purpose === 'presentation' || options.audience === 'business') {
-      return ConfigTemplates.getPresentationConfig()
-    }
-    
-    if (options.style === 'minimal') {
-      return ConfigTemplates.getMinimalConfig()
-    }
-    
-    if (options.style === 'energetic') {
-      return ConfigTemplates.getGamingConfig()
-    }
-    
-    return ConfigTemplates.getDefaultConfig()
   }
 
   private static optimizeForDataCharacteristics(

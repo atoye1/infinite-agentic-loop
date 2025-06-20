@@ -2,7 +2,7 @@
  * Demonstration of comprehensive error handling in the Bar Chart Race system
  */
 
-import { DataProcessor, DataProcessingError, ProcessingConfig } from '../DataProcessor';
+import { DataProcessor, DataProcessingError, ProcessingConfig } from '../dataprocessor/DataProcessor';
 import { ValidationUtils } from '../utils/ValidationUtils';
 import { validateProcessedData } from '../utils';
 
