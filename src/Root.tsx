@@ -2,6 +2,7 @@ import "./index.css";
 import React from "react";
 import { Composition } from "remotion";
 import { BarChartRaceComposition, barChartRaceSchema } from "./BarChartRace";
+import { BarChartRaceD3, d3BarChartRaceSchema, defaultD3Config } from "./BarChartRaceD3";
 import { BuildTimeDataLoader } from "./dataprocessor/BuildTimeDataLoader";
 
 // Dynamic Compositions Hook
@@ -219,6 +220,43 @@ export const RemotionRoot: React.FC = () => {
   console.log(compositions);
   return (
     <>
+      {/* D3.js Bar Chart Race Test Composition */}
+      <Composition
+        id="BarChartRaceD3-Test"
+        component={BarChartRaceD3}
+        durationInFrames={300} // 10 seconds at 30fps
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={d3BarChartRaceSchema}
+        defaultProps={{
+          config: {
+            ...defaultD3Config,
+            data: {
+              csvPath: '/data/sample-data.csv',
+              dateColumn: 'Date',
+              dateFormat: 'YYYY-MM',
+              valueColumns: ['YouTube', 'Netflix', 'Disney+', 'HBO Max'],
+            },
+            styling: {
+              background: '#f8f9fa',
+              colorScheme: 'tableau10',
+              fontSize: 14,
+              fontFamily: 'Inter, Arial, sans-serif',
+            },
+            chart: {
+              visibleBars: 10,
+              margins: { top: 80, right: 120, bottom: 80, left: 200 },
+              barSize: 48,
+            },
+            animation: {
+              duration: 250,
+              interpolationFrames: 30,
+              easing: 'linear',
+            },
+          }
+        }}
+      />
       {compositions.map((comp) => (
         <Composition
           key={comp.id}

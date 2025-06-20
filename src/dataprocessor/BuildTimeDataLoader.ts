@@ -70,7 +70,7 @@ export class BuildTimeDataLoader {
     // First, try to find the content in the manifest
     const manifest = await loadCSVManifest();
     const csvMetadata = (manifest.csvFiles as CSVMetadata[]).find(
-      csv => csv.filepath === filepath
+      csv => csv.filepath === filepath || csv.filename === filepath
     );
     
     if (csvMetadata && csvMetadata.content) {
